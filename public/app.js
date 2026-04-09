@@ -79,75 +79,15 @@ pdfFileInput.addEventListener('change', async () => {
     }
 });
 
-// アセスメントシートPDFアップロード → 自動抽出
-assessmentPdfInput.addEventListener('change', async () => {
+// アセスメントシートPDFのフィードバック
+assessmentPdfInput.addEventListener('change', () => {
     const file = assessmentPdfInput.files[0];
-    if (!file) {
+    if (file) {
+        const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+        assessmentPdfStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${file.name}（${sizeMB}MB）を選択中`;
+        assessmentPdfStatus.style.color = '#4CAF50';
+    } else {
         assessmentPdfStatus.textContent = '';
-        return;
-    }
-
-    const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-    assessmentPdfStatus.textContent = `${file.name}（${sizeMB}MB）を読み取り中...`;
-    assessmentPdfStatus.style.color = '#795548';
-
-    const formData = new FormData();
-    formData.append('assessmentPdf', file);
-
-    try {
-        const response = await fetch('/api/extract-assessment', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            assessmentPdfStatus.textContent = `${file.name} - 読み取りエラー`;
-            assessmentPdfStatus.style.color = '#f44336';
-            return;
-        }
-
-        // 抽出結果をフォームに自動入力
-        let filledCount = 0;
-        const fields = [
-            { id: 'childStatus', value: data.childStatus },
-            { id: 'childName', value: data.childName },
-            { id: 'childAge', value: data.childAge },
-            { id: 'childProfile', value: data.childProfile },
-            { id: 'assessment', value: data.assessment }
-        ];
-
-        fields.forEach(field => {
-            if (field.value) {
-                const el = document.getElementById(field.id);
-                if (!el.value.trim()) {
-                    el.value = field.value;
-                    el.classList.add('auto-filled');
-                    setTimeout(() => el.classList.remove('auto-filled'), 3000);
-                    filledCount++;
-                }
-            }
-        });
-
-        const labels = [];
-        if (data.childStatus) labels.push('日々の様子');
-        if (data.childName) labels.push('氏名');
-        if (data.childAge) labels.push('年齢');
-        if (data.childProfile) labels.push('診断名');
-        if (data.assessment) labels.push('アセスメント');
-
-        if (filledCount > 0) {
-            assessmentPdfStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${file.name}（${sizeMB}MB）- ${labels.join('・')}を自動入力しました`;
-            assessmentPdfStatus.style.color = '#4CAF50';
-        } else {
-            assessmentPdfStatus.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${file.name}（${sizeMB}MB）- 読み取り完了（自動入力できる項目はありませんでした）`;
-            assessmentPdfStatus.style.color = '#FF9800';
-        }
-    } catch (err) {
-        console.error('Assessment PDF extract error:', err);
-        assessmentPdfStatus.textContent = `${file.name} - 読み取りに失敗しました`;
-        assessmentPdfStatus.style.color = '#f44336';
     }
 });
 
