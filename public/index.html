@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>個別支援計画書 自動作成アシスタント（児発管向け）</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Markdown Parser & Sanitizer -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -25,27 +22,87 @@
     <div class="container">
         <header>
             <h1><i class="fa-solid fa-child-reaching"></i> 個別支援計画書アシスタント</h1>
-            <p class="subtitle">児童の日々の様子から、専門的な支援計画のベースを自動作成します。</p>
+            <p class="subtitle">児童の情報から、5領域に基づいた専門的な支援計画を自動作成します。</p>
         </header>
 
         <main>
-            <div class="glass-panel input-section">
-                <h2><i class="fa-solid fa-pen-to-square"></i> 児童の様子・特性を入力</h2>
-                <form id="planForm">
-                    <div class="form-group">
-                        <label for="childProfile">基本情報（年齢、診断名、通所頻度など）※任意</label>
-                        <input type="text" id="childProfile" placeholder="例: 5歳（年長）、自閉スペクトラム症、週3回利用">
-                    </div>
-                    <div class="form-group">
-                        <label for="childStatus">日々の様子・気になる特性<span class="required">必須</span></label>
-                        <textarea id="childStatus" rows="6" placeholder="例:&#10;・友達とおもちゃの貸し借りがうまくできず、トラブルになることが多い。&#10;・一方で、電車やブロックなど好きな物には長時間集中できる。&#10;・言葉の遅れがあり、二語文は出るが、要求を言葉で伝えるのが苦手。" required></textarea>
-                    </div>
-                    <button type="submit" id="generateBtn" class="primary-btn">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> 計画の素案を作成する
-                    </button>
-                </form>
-            </div>
+            <form id="planForm" enctype="multipart/form-data">
 
+                <!-- セクション1: 過去の計画書PDF -->
+                <div class="glass-panel">
+                    <h2><i class="fa-solid fa-file-pdf"></i> 過去の個別支援計画書（PDF）</h2>
+                    <p class="section-desc">過去の計画書をアップロードすると、内容との整合性を保った計画を作成します。</p>
+                    <div class="form-group">
+                        <label for="pdfFile">PDFファイルを選択 <span class="optional">任意</span></label>
+                        <input type="file" id="pdfFile" accept=".pdf">
+                        <div id="pdfStatus" class="file-status"></div>
+                    </div>
+                </div>
+
+                <!-- セクション2: 教室情報 -->
+                <div class="glass-panel">
+                    <h2><i class="fa-solid fa-school"></i> 教室情報</h2>
+                    <div class="form-group">
+                        <label for="classroomName">教室名 <span class="optional">任意</span></label>
+                        <input type="text" id="classroomName" placeholder="例: ○○教室 △△校">
+                    </div>
+                    <div class="form-group">
+                        <label for="classroomPolicy">教室の特徴・方針 <span class="optional">任意</span></label>
+                        <textarea id="classroomPolicy" rows="3" placeholder="例:&#10;・小集団療育を中心に、社会性の向上を重視&#10;・運動プログラムを毎日実施&#10;・保護者との連携を密に行い、家庭での般化を支援"></textarea>
+                    </div>
+                </div>
+
+                <!-- セクション3: 利用者情報 -->
+                <div class="glass-panel">
+                    <h2><i class="fa-solid fa-user-pen"></i> 利用者情報</h2>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="childName">利用者名 <span class="optional">任意</span></label>
+                            <input type="text" id="childName" placeholder="例: 田中 太郎">
+                        </div>
+                        <div class="form-group half">
+                            <label for="childAge">年齢・学年 <span class="optional">任意</span></label>
+                            <input type="text" id="childAge" placeholder="例: 5歳（年長）">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="childProfile">基本情報（診断名、発達段階、通所頻度など）<span class="optional">任意</span></label>
+                        <input type="text" id="childProfile" placeholder="例: 自閉スペクトラム症、DQ75、週3回利用">
+                    </div>
+                    <div class="form-group">
+                        <label for="childStatus">日々の様子・気になる特性・興味・ニーズ <span class="required">必須</span></label>
+                        <textarea id="childStatus" rows="5" placeholder="例:&#10;・友達とおもちゃの貸し借りがうまくできず、トラブルになることが多い&#10;・電車やブロックなど好きな物には長時間集中できる&#10;・言葉の遅れがあり、二語文は出るが要求を言葉で伝えるのが苦手" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="assessment">アセスメント（現在の状況評価）<span class="optional">任意</span></label>
+                        <textarea id="assessment" rows="3" placeholder="例: WISC-V結果、行動観察の所見、他機関からの情報など"></textarea>
+                    </div>
+                </div>
+
+                <!-- セクション4: 家族・目標 -->
+                <div class="glass-panel">
+                    <h2><i class="fa-solid fa-people-roof"></i> 家族の意向・目標設定</h2>
+                    <div class="form-group">
+                        <label for="familyWishes">家族の意向・希望 <span class="optional">任意</span></label>
+                        <textarea id="familyWishes" rows="3" placeholder="例:&#10;・小学校の普通級に通えるようになってほしい&#10;・友達と仲良く遊べるようになってほしい&#10;・身の回りのことを自分でできるようになってほしい"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="longTermGoal">長期目標（1年間）<span class="optional">任意</span></label>
+                        <textarea id="longTermGoal" rows="2" placeholder="例: 小集団の中でルールを理解し、友達と協力して活動に参加できる"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="shortTermGoal">短期目標（6ヶ月）<span class="optional">任意</span></label>
+                        <textarea id="shortTermGoal" rows="2" placeholder="例: 大人の声かけがあれば、順番を待つことができる"></textarea>
+                    </div>
+                </div>
+
+                <!-- 送信ボタン -->
+                <button type="submit" id="generateBtn" class="primary-btn">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 5領域に基づく支援計画を作成する
+                </button>
+            </form>
+
+            <!-- 結果セクション -->
             <div class="glass-panel result-section hidden" id="resultContainer">
                 <div class="result-header">
                     <h2><i class="fa-regular fa-clipboard"></i> 作成結果</h2>
@@ -53,7 +110,7 @@
                 </div>
                 <div id="loadingIndicator" class="hidden">
                     <div class="spinner"></div>
-                    <p>AIが専門的な視点で作成中です...<br>しばらくお待ちください</p>
+                    <p>AIが5領域に基づく支援計画を作成中です...<br>しばらくお待ちください（30秒〜1分程度）</p>
                 </div>
                 <div id="resultContent" class="markdown-body"></div>
             </div>
