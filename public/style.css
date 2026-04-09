@@ -222,6 +222,40 @@ button {
     margin-bottom: 0;
 }
 
+.result-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.reset-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #9E9E9E;
+    color: #757575;
+    padding: 8px 15px;
+}
+
+.reset-btn:hover {
+    background: #757575;
+    color: white;
+}
+
+.field-desc {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.auto-filled {
+    animation: autoFillFlash 1s ease;
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2) !important;
+}
+
+@keyframes autoFillFlash {
+    0% { background-color: rgba(76, 175, 80, 0.15); }
+    100% { background-color: rgba(255, 255, 255, 0.8); }
+}
+
 .hidden {
     display: none !important;
 }

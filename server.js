@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 // multer: メモリストレージ（ファイルをディスクに保存しない）
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB上限
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'application/pdf') {
             cb(null, true);
@@ -18,11 +18,135 @@ const upload = multer({
     }
 });
 
+// 複数PDFフィールド定義
+const uploadFields = upload.fields([
+    { name: 'pdfFile', maxCount: 1 },         // 過去の個別支援計画書
+    { name: 'assessmentPdf', maxCount: 1 }     // アセスメントシート
+]);
+
 app.use(express.json());
 app.use(express.static('public'));
 
-// Gemini API プロキシエンドポイント
-app.post('/api/generate', upload.single('pdfFile'), async (req, res) => {
+// PDFからテキスト抽出
+async function extractPdfText(fileBuffer, maxLength) {
+    const pdfData = await pdfParse(fileBuffer);
+    return pdfData.text.slice(0, maxLength);
+}
+
+// 個別支援計画書PDFから利用者情報を抽出するエンドポイント
+app.post('/api/extract-pdf', upload.single('pdfFile'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'PDFファイルが送信されていません。' });
+    }
+
+    try {
+        const pdfData = await pdfParse(req.file.buffer);
+        const text = pdfData.text;
+
+        // テキストからフィールドを推定抽出
+        const extracted = extractFieldsFromPdf(text);
+        extracted.rawText = text.slice(0, 8000);
+
+        res.json(extracted);
+    } catch (err) {
+        console.error('PDF extract error:', err);
+        res.status(400).json({ error: 'PDFの読み取りに失敗しました。' });
+    }
+});
+
+// PDFテキストから各フィールドを推定抽出
+function extractFieldsFromPdf(text) {
+    const result = {
+        childName: '',
+        childAge: '',
+        childProfile: '',
+        familyWishes: '',
+        longTermGoal: '',
+        shortTermGoal: ''
+    };
+
+    // 氏名の抽出パターン
+    const namePatterns = [
+        /(?:氏\s*名|利用者名|児童名|お名前|名前)\s*[:：\s]\s*(.+)/,
+        /(?:フリガナ|ふりがな).+\n\s*(.+)/
+    ];
+    for (const pattern of namePatterns) {
+        const match = text.match(pattern);
+        if (match) {
+            const name = match[1].trim().split(/[\s\n\t]/)[0].replace(/[\(（].+[\)）]/, '').trim();
+            if (name && name.length <= 20) {
+                result.childName = name;
+                break;
+            }
+        }
+    }
+
+    // 年齢の抽出
+    const agePatterns = [
+        /(?:年齢|生年月日|年\s*齢)\s*[:：\s]\s*(.+)/,
+        /(\d{1,2})\s*歳/
+    ];
+    for (const pattern of agePatterns) {
+        const match = text.match(pattern);
+        if (match) {
+            result.childAge = match[1].trim().slice(0, 30);
+            break;
+        }
+    }
+
+    // 診断名
+    const diagPatterns = [
+        /(?:診断名|障害名|障がい名|疾患名)\s*[:：\s]\s*(.+)/
+    ];
+    for (const pattern of diagPatterns) {
+        const match = text.match(pattern);
+        if (match) {
+            result.childProfile = match[1].trim().slice(0, 100);
+            break;
+        }
+    }
+
+    // 家族の意向
+    const familyPatterns = [
+        /(?:保護者.*(?:意向|希望|ニーズ|要望)|家族.*(?:意向|希望|ニーズ|要望)|ご家族.*(?:意向|希望))\s*[:：\s]\s*([\s\S]{1,300}?)(?=\n(?:[A-Z\u3000-\u9FFF]|$|\d+\.))/
+    ];
+    for (const pattern of familyPatterns) {
+        const match = text.match(pattern);
+        if (match) {
+            result.familyWishes = match[1].trim().slice(0, 300);
+            break;
+        }
+    }
+
+    // 長期目標
+    const longGoalPatterns = [
+        /(?:長期目標|長期的な目標)\s*[:：\s]\s*([\s\S]{1,300}?)(?=\n(?:短期|[A-Z\u3000-\u9FFF]|\d+\.))/
+    ];
+    for (const pattern of longGoalPatterns) {
+        const match = text.match(pattern);
+        if (match) {
+            result.longTermGoal = match[1].trim().slice(0, 300);
+            break;
+        }
+    }
+
+    // 短期目標
+    const shortGoalPatterns = [
+        /(?:短期目標|短期的な目標)\s*[:：\s]\s*([\s\S]{1,300}?)(?=\n(?:支援|具体|[A-Z\u3000-\u9FFF]|\d+\.))/
+    ];
+    for (const pattern of shortGoalPatterns) {
+        const match = text.match(pattern);
+        if (match) {
+            result.shortTermGoal = match[1].trim().slice(0, 300);
+            break;
+        }
+    }
+
+    return result;
+}
+
+// 支援計画生成エンドポイント
+app.post('/api/generate', uploadFields, async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         return res.status(500).json({ error: 'サーバーにAPIキーが設定されていません。' });
@@ -38,25 +162,34 @@ app.post('/api/generate', upload.single('pdfFile'), async (req, res) => {
         return res.status(400).json({ error: '日々の様子・気になる特性は必須です。' });
     }
 
-    // PDF解析
+    // 過去の計画書PDF解析
     let pastPlanText = '';
-    if (req.file) {
+    if (req.files && req.files['pdfFile'] && req.files['pdfFile'][0]) {
         try {
-            const pdfData = await pdfParse(req.file.buffer);
-            pastPlanText = pdfData.text.slice(0, 8000); // トークン節約のため8000文字まで
+            pastPlanText = await extractPdfText(req.files['pdfFile'][0].buffer, 8000);
         } catch (err) {
             console.error('PDF parse error:', err);
-            return res.status(400).json({ error: 'PDFの読み取りに失敗しました。別のファイルをお試しください。' });
+            return res.status(400).json({ error: '計画書PDFの読み取りに失敗しました。' });
+        }
+    }
+
+    // アセスメントシートPDF解析
+    let assessmentPdfText = '';
+    if (req.files && req.files['assessmentPdf'] && req.files['assessmentPdf'][0]) {
+        try {
+            assessmentPdfText = await extractPdfText(req.files['assessmentPdf'][0].buffer, 6000);
+        } catch (err) {
+            console.error('Assessment PDF parse error:', err);
+            return res.status(400).json({ error: 'アセスメントシートPDFの読み取りに失敗しました。' });
         }
     }
 
     const model = 'gemini-2.5-flash';
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-    // プロンプト組み立て
     const prompt = buildPrompt({
         childName, childAge, childProfile, childStatus,
-        assessment, familyWishes, longTermGoal, shortTermGoal,
+        assessment, assessmentPdfText, familyWishes, longTermGoal, shortTermGoal,
         classroomName, classroomPolicy, pastPlanText
     });
 
@@ -141,10 +274,13 @@ ${data.classroomPolicy || '未記入'}
 日々の様子・気になる特性・興味・ニーズ:
 ${data.childStatus}`);
 
-    // アセスメント
-    if (data.assessment) {
+    // アセスメント（テキスト入力 + PDFテキスト）
+    const assessmentParts = [];
+    if (data.assessment) assessmentParts.push(data.assessment);
+    if (data.assessmentPdfText) assessmentParts.push('【アセスメントシートPDFより抽出】\n' + data.assessmentPdfText);
+    if (assessmentParts.length > 0) {
         sections.push(`【アセスメント（現在の状況評価）】
-${data.assessment}`);
+${assessmentParts.join('\n\n')}`);
     }
 
     // 家族の意向・目標

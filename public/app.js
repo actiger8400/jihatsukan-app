@@ -5,18 +5,89 @@ const resultContainer = document.getElementById('resultContainer');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const resultContent = document.getElementById('resultContent');
 const copyBtn = document.getElementById('copyBtn');
+const resetBtn = document.getElementById('resetBtn');
 const pdfFileInput = document.getElementById('pdfFile');
 const pdfStatus = document.getElementById('pdfStatus');
+const assessmentPdfInput = document.getElementById('assessmentPdf');
+const assessmentPdfStatus = document.getElementById('assessmentPdfStatus');
 
-// PDF選択時のフィードバック
-pdfFileInput.addEventListener('change', () => {
+// 過去の計画書PDFアップロード → 自動抽出
+pdfFileInput.addEventListener('change', async () => {
     const file = pdfFileInput.files[0];
+    if (!file) {
+        pdfStatus.textContent = '';
+        return;
+    }
+
+    const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+    pdfStatus.textContent = `${file.name}（${sizeMB}MB）を読み取り中...`;
+    pdfStatus.style.color = '#795548';
+
+    // サーバーに送ってフィールド自動抽出
+    const formData = new FormData();
+    formData.append('pdfFile', file);
+
+    try {
+        const response = await fetch('/api/extract-pdf', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            pdfStatus.textContent = `${file.name}（${sizeMB}MB） - 読み取りエラー`;
+            pdfStatus.style.color = '#f44336';
+            return;
+        }
+
+        // 抽出結果をフォームに自動入力（空でない場合のみ）
+        let filledCount = 0;
+        const fields = [
+            { id: 'childName', value: data.childName },
+            { id: 'childAge', value: data.childAge },
+            { id: 'childProfile', value: data.childProfile },
+            { id: 'familyWishes', value: data.familyWishes },
+            { id: 'longTermGoal', value: data.longTermGoal },
+            { id: 'shortTermGoal', value: data.shortTermGoal }
+        ];
+
+        fields.forEach(field => {
+            if (field.value) {
+                const el = document.getElementById(field.id);
+                // 既に入力がある場合は上書きしない
+                if (!el.value.trim()) {
+                    el.value = field.value;
+                    el.classList.add('auto-filled');
+                    setTimeout(() => el.classList.remove('auto-filled'), 3000);
+                    filledCount++;
+                }
+            }
+        });
+
+        if (filledCount > 0) {
+            pdfStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${file.name}（${sizeMB}MB）- ${filledCount}件の項目を自動入力しました`;
+            pdfStatus.style.color = '#4CAF50';
+        } else {
+            pdfStatus.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${file.name}（${sizeMB}MB）- 読み取り完了（自動入力できる項目はありませんでした）`;
+            pdfStatus.style.color = '#FF9800';
+        }
+    } catch (err) {
+        console.error('PDF extract error:', err);
+        pdfStatus.textContent = `${file.name}（${sizeMB}MB） - 読み取りに失敗しました`;
+        pdfStatus.style.color = '#f44336';
+    }
+});
+
+// アセスメントシートPDFのフィードバック
+assessmentPdfInput.addEventListener('change', () => {
+    const file = assessmentPdfInput.files[0];
     if (file) {
         const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-        pdfStatus.textContent = `${file.name}（${sizeMB}MB）を選択中`;
-        pdfStatus.style.color = '#4e342e';
+        assessmentPdfStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${file.name}（${sizeMB}MB）を選択中`;
+        assessmentPdfStatus.style.color = '#4CAF50';
     } else {
-        pdfStatus.textContent = '';
+        assessmentPdfStatus.textContent = '';
     }
 });
 
@@ -49,6 +120,12 @@ planForm.addEventListener('submit', async (e) => {
         formData.append('pdfFile', pdfFile);
     }
 
+    // アセスメントシートPDF
+    const assessmentPdf = assessmentPdfInput.files[0];
+    if (assessmentPdf) {
+        formData.append('assessmentPdf', assessmentPdf);
+    }
+
     // UI Feedback
     generateBtn.disabled = true;
     resultContainer.classList.remove('hidden');
@@ -59,7 +136,7 @@ planForm.addEventListener('submit', async (e) => {
     try {
         const response = await fetch('/api/generate', {
             method: 'POST',
-            body: formData // Content-TypeはFormDataが自動設定
+            body: formData
         });
 
         const data = await response.json();
@@ -100,4 +177,24 @@ copyBtn.addEventListener('click', () => {
         console.error('Failed to copy: ', err);
         alert('コピーに失敗しました。');
     });
+});
+
+// Reset Button
+resetBtn.addEventListener('click', () => {
+    if (!confirm('フォームと結果をリセットしますか？')) return;
+
+    // フォームリセット
+    planForm.reset();
+
+    // ファイル選択状態クリア
+    pdfStatus.textContent = '';
+    assessmentPdfStatus.textContent = '';
+
+    // 結果非表示
+    resultContainer.classList.add('hidden');
+    resultContent.innerHTML = '';
+    loadingIndicator.classList.add('hidden');
+
+    // 画面トップにスクロール
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
