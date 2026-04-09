@@ -18,7 +18,7 @@ app.post('/api/generate', async (req, res) => {
         return res.status(400).json({ error: '日々の様子・気になる特性は必須です。' });
     }
 
-    const model = 'gemini-2.0-flash';
+    const model = 'gemini-2.5-flash';
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const prompt = `
