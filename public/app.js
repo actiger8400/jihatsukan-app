@@ -180,98 +180,107 @@ copyBtn.addEventListener('click', () => {
     });
 });
 
-// PDF Export
+// PDF Export（印刷ダイアログ経由で「PDFに保存」）
 pdfBtn.addEventListener('click', () => {
+    // 結果コンテンツだけを印刷する新しいウィンドウを開く
+    const printWindow = window.open('', '_blank');
     const childName = document.getElementById('childName').value.trim() || '利用者';
     const today = new Date().toISOString().slice(0, 10);
-    const filename = `個別支援計画書_${childName}_${today}.pdf`;
 
-    const originalText = pdfBtn.innerHTML;
-    pdfBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 作成中...';
-    pdfBtn.disabled = true;
-
-    // PDF用のクローンを作成（レイアウト崩れ防止）
-    const pdfContainer = document.createElement('div');
-    pdfContainer.innerHTML = resultContent.innerHTML;
-    pdfContainer.style.cssText = `
-        font-family: 'M PLUS Rounded 1c', sans-serif;
-        color: #4e342e;
-        font-size: 11pt;
-        line-height: 1.8;
-        padding: 0;
-        width: 170mm;
-    `;
-
-    // PDF用スタイル調整
-    const style = document.createElement('style');
-    style.textContent = `
-        .pdf-export h2 {
-            color: #FF5722;
-            font-size: 14pt;
-            border-bottom: 2px solid #FFC107;
-            padding-bottom: 4px;
-            margin-top: 20px;
+    printWindow.document.write(`<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>個別支援計画書_${childName}_${today}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 18mm;
+        }
+        body {
+            font-family: 'M PLUS Rounded 1c', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+            color: #333;
+            font-size: 11pt;
+            line-height: 1.9;
+            margin: 0;
+            padding: 0;
+        }
+        h1.doc-title {
+            text-align: center;
+            font-size: 16pt;
+            color: #4e342e;
+            border-bottom: 3px solid #FF9800;
+            padding-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .doc-meta {
+            text-align: center;
+            font-size: 9pt;
+            color: #888;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #E65100;
+            font-size: 13pt;
+            border-bottom: 2px solid #FFB74D;
+            padding-bottom: 3px;
+            margin-top: 24px;
             margin-bottom: 10px;
             page-break-after: avoid;
         }
-        .pdf-export h3 {
-            color: #FF5722;
-            font-size: 12pt;
-            margin-top: 16px;
-            margin-bottom: 8px;
+        h3 {
+            color: #EF6C00;
+            font-size: 11.5pt;
+            margin-top: 18px;
+            margin-bottom: 6px;
             page-break-after: avoid;
         }
-        .pdf-export p {
-            margin-bottom: 8px;
-            orphans: 3;
-            widows: 3;
+        p {
+            margin: 0 0 8px 0;
+            text-align: justify;
         }
-        .pdf-export ul, .pdf-export ol {
-            margin-bottom: 8px;
-            padding-left: 20px;
+        ul, ol {
+            margin: 4px 0 10px 0;
+            padding-left: 22px;
         }
-        .pdf-export li {
-            margin-bottom: 4px;
+        li {
+            margin-bottom: 3px;
             page-break-inside: avoid;
         }
-        .pdf-export blockquote {
-            border-left: 3px solid #FF9800;
-            padding-left: 10px;
-            margin: 8px 0;
-            color: #795548;
+        strong {
+            color: #4e342e;
         }
-    `;
-    pdfContainer.classList.add('pdf-export');
-    pdfContainer.prepend(style);
+        blockquote {
+            border-left: 3px solid #FF9800;
+            padding-left: 12px;
+            margin: 8px 0;
+            color: #666;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="doc-title">個別支援計画書</h1>
+    <div class="doc-meta">利用者名: ${childName}　｜　作成日: ${today}</div>
+    ${resultContent.innerHTML}
+</body>
+</html>`);
+    printWindow.document.close();
 
-    // body外に一時配置（非表示だが描画される）
-    pdfContainer.style.position = 'absolute';
-    pdfContainer.style.left = '-9999px';
-    document.body.appendChild(pdfContainer);
-
-    const opt = {
-        margin: [15, 15, 15, 15],
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, width: pdfContainer.scrollWidth },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: 'css', avoid: ['h2', 'h3', 'li'] }
-    };
-
-    html2pdf().set(opt).from(pdfContainer).save().then(() => {
-        document.body.removeChild(pdfContainer);
-        pdfBtn.innerHTML = '<i class="fa-solid fa-check"></i> 保存しました';
+    // フォント読み込み待ちしてから印刷
+    printWindow.onload = () => {
         setTimeout(() => {
-            pdfBtn.innerHTML = originalText;
-            pdfBtn.disabled = false;
-        }, 2000);
-    }).catch(err => {
-        console.error('PDF export error:', err);
-        document.body.removeChild(pdfContainer);
-        alert('PDF出力に失敗しました。');
-        pdfBtn.innerHTML = originalText;
-        pdfBtn.disabled = false;
-    });
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    };
 });
 
 // Reset Button
