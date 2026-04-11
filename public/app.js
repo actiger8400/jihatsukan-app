@@ -6,6 +6,7 @@ const loadingIndicator = document.getElementById('loadingIndicator');
 const resultContent = document.getElementById('resultContent');
 const copyBtn = document.getElementById('copyBtn');
 const resetBtn = document.getElementById('resetBtn');
+const pdfBtn = document.getElementById('pdfBtn');
 const pdfFileInput = document.getElementById('pdfFile');
 const pdfStatus = document.getElementById('pdfStatus');
 const assessmentPdfInput = document.getElementById('assessmentPdf');
@@ -176,6 +177,40 @@ copyBtn.addEventListener('click', () => {
     }).catch(err => {
         console.error('Failed to copy: ', err);
         alert('コピーに失敗しました。');
+    });
+});
+
+// PDF Export
+pdfBtn.addEventListener('click', () => {
+    const childName = document.getElementById('childName').value.trim() || '利用者';
+    const today = new Date().toISOString().slice(0, 10);
+    const filename = `個別支援計画書_${childName}_${today}.pdf`;
+
+    // PDF用のボタン非表示
+    const originalText = pdfBtn.innerHTML;
+    pdfBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 作成中...';
+    pdfBtn.disabled = true;
+
+    const opt = {
+        margin: [15, 15, 15, 15],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(resultContent).save().then(() => {
+        pdfBtn.innerHTML = '<i class="fa-solid fa-check"></i> 保存しました';
+        setTimeout(() => {
+            pdfBtn.innerHTML = originalText;
+            pdfBtn.disabled = false;
+        }, 2000);
+    }).catch(err => {
+        console.error('PDF export error:', err);
+        alert('PDF出力に失敗しました。');
+        pdfBtn.innerHTML = originalText;
+        pdfBtn.disabled = false;
     });
 });
 
