@@ -186,21 +186,80 @@ pdfBtn.addEventListener('click', () => {
     const today = new Date().toISOString().slice(0, 10);
     const filename = `個別支援計画書_${childName}_${today}.pdf`;
 
-    // PDF用のボタン非表示
     const originalText = pdfBtn.innerHTML;
     pdfBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 作成中...';
     pdfBtn.disabled = true;
 
+    // PDF用のクローンを作成（レイアウト崩れ防止）
+    const pdfContainer = document.createElement('div');
+    pdfContainer.innerHTML = resultContent.innerHTML;
+    pdfContainer.style.cssText = `
+        font-family: 'M PLUS Rounded 1c', sans-serif;
+        color: #4e342e;
+        font-size: 11pt;
+        line-height: 1.8;
+        padding: 0;
+        width: 170mm;
+    `;
+
+    // PDF用スタイル調整
+    const style = document.createElement('style');
+    style.textContent = `
+        .pdf-export h2 {
+            color: #FF5722;
+            font-size: 14pt;
+            border-bottom: 2px solid #FFC107;
+            padding-bottom: 4px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            page-break-after: avoid;
+        }
+        .pdf-export h3 {
+            color: #FF5722;
+            font-size: 12pt;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            page-break-after: avoid;
+        }
+        .pdf-export p {
+            margin-bottom: 8px;
+            orphans: 3;
+            widows: 3;
+        }
+        .pdf-export ul, .pdf-export ol {
+            margin-bottom: 8px;
+            padding-left: 20px;
+        }
+        .pdf-export li {
+            margin-bottom: 4px;
+            page-break-inside: avoid;
+        }
+        .pdf-export blockquote {
+            border-left: 3px solid #FF9800;
+            padding-left: 10px;
+            margin: 8px 0;
+            color: #795548;
+        }
+    `;
+    pdfContainer.classList.add('pdf-export');
+    pdfContainer.prepend(style);
+
+    // body外に一時配置（非表示だが描画される）
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '-9999px';
+    document.body.appendChild(pdfContainer);
+
     const opt = {
         margin: [15, 15, 15, 15],
         filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, width: pdfContainer.scrollWidth },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        pagebreak: { mode: 'css', avoid: ['h2', 'h3', 'li'] }
     };
 
-    html2pdf().set(opt).from(resultContent).save().then(() => {
+    html2pdf().set(opt).from(pdfContainer).save().then(() => {
+        document.body.removeChild(pdfContainer);
         pdfBtn.innerHTML = '<i class="fa-solid fa-check"></i> 保存しました';
         setTimeout(() => {
             pdfBtn.innerHTML = originalText;
@@ -208,6 +267,7 @@ pdfBtn.addEventListener('click', () => {
         }, 2000);
     }).catch(err => {
         console.error('PDF export error:', err);
+        document.body.removeChild(pdfContainer);
         alert('PDF出力に失敗しました。');
         pdfBtn.innerHTML = originalText;
         pdfBtn.disabled = false;
