@@ -264,6 +264,31 @@ pdfBtn.addEventListener('click', () => {
             border-top: 1px solid #ddd;
             margin: 16px 0;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 9pt;
+            line-height: 1.5;
+            page-break-inside: auto;
+        }
+        th {
+            background: #FFF3E0;
+            color: #4e342e;
+            padding: 6px 8px;
+            border: 1px solid #999;
+            text-align: center;
+            font-weight: 700;
+            font-size: 8.5pt;
+        }
+        td {
+            padding: 6px 8px;
+            border: 1px solid #999;
+            vertical-align: top;
+        }
+        tr {
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>

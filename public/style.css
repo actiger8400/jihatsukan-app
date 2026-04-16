@@ -288,6 +288,33 @@ button {
     margin-bottom: 0.5em;
 }
 
+.markdown-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9rem;
+    background: #fff;
+}
+
+.markdown-body th {
+    background: var(--secondary-color);
+    color: var(--text-main);
+    padding: 8px;
+    border: 1px solid #bbb;
+    text-align: center;
+    font-weight: 700;
+}
+
+.markdown-body td {
+    padding: 8px;
+    border: 1px solid #bbb;
+    vertical-align: top;
+}
+
+.markdown-body tr:nth-child(even) td {
+    background: rgba(255, 243, 224, 0.4);
+}
+
 #loadingIndicator {
     text-align: center;
     padding: 2rem 0;
