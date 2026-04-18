@@ -165,20 +165,62 @@ planForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Copy to Clipboard
-copyBtn.addEventListener('click', () => {
-    const textToCopy = resultContent.innerText;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        const originalText = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> コピーしました';
+// Copy to Clipboard (HTML + プレーンテキスト両方で表を保持)
+copyBtn.addEventListener('click', async () => {
+    const originalText = copyBtn.innerHTML;
+
+    // HTML形式（Word/Excel/Googleドキュメント等で表が保持される）
+    const htmlContent = resultContent.innerHTML;
+
+    // プレーンテキスト形式（テキストエディタ用、表はTSV化）
+    const plainText = htmlToPlainTextWithTables(resultContent);
+
+    try {
+        // ClipboardItem で HTML と plain/text の両方を同時書き込み
+        if (typeof ClipboardItem !== 'undefined' && navigator.clipboard.write) {
+            const item = new ClipboardItem({
+                'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                'text/plain': new Blob([plainText], { type: 'text/plain' })
+            });
+            await navigator.clipboard.write([item]);
+        } else {
+            // フォールバック: プレーンテキストのみ
+            await navigator.clipboard.writeText(plainText);
+        }
+
+        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> 表ごとコピーしました';
         setTimeout(() => {
             copyBtn.innerHTML = originalText;
         }, 2000);
-    }).catch(err => {
+    } catch (err) {
         console.error('Failed to copy: ', err);
-        alert('コピーに失敗しました。');
-    });
+        // 失敗時は最低限プレーンテキストだけでも
+        try {
+            await navigator.clipboard.writeText(plainText);
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> コピーしました';
+            setTimeout(() => { copyBtn.innerHTML = originalText; }, 2000);
+        } catch {
+            alert('コピーに失敗しました。');
+        }
+    }
 });
+
+// HTML→プレーンテキスト変換（表はタブ区切りに）
+function htmlToPlainTextWithTables(rootEl) {
+    const clone = rootEl.cloneNode(true);
+    // 表をTSVに置換
+    clone.querySelectorAll('table').forEach(table => {
+        const rows = Array.from(table.querySelectorAll('tr')).map(tr =>
+            Array.from(tr.querySelectorAll('th,td'))
+                .map(cell => cell.innerText.replace(/\s+/g, ' ').trim())
+                .join('\t')
+        );
+        const placeholder = document.createElement('pre');
+        placeholder.textContent = rows.join('\n');
+        table.replaceWith(placeholder);
+    });
+    return clone.innerText;
+}
 
 // PDF Export（印刷ダイアログ経由で「PDFに保存」）
 pdfBtn.addEventListener('click', () => {
