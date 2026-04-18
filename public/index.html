@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個別支援計画書 自動作成アシスタント（児発管向け）</title>
+    <title>ウィズ・ユー｜個別支援計画書アシスタント</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="withyou_logo背景無.png">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="background-circles">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
+    <header class="site-header">
+        <div class="site-logo">
+            <img src="withyou_logo背景無.png" alt="ウィズ・ユー" class="logo-img">
+            <div class="logo-text">
+                <div class="logo-main">ウィズ・ユー</div>
+                <div class="logo-sub">個別支援計画書アシスタント</div>
+            </div>
+        </div>
+        <div class="site-status"><span class="status-dot">●</span>稼働中</div>
+    </header>
+
+    <div class="hero">
+        <h1>お子さま一人ひとりに、<span class="hero-accent">寄り添う支援計画</span>を。</h1>
+        <p class="hero-subtitle">AIが児発管の業務をサポート。5領域に基づく個別支援計画書を自動で作成します。</p>
     </div>
 
     <div class="container">
-        <header>
-            <h1><i class="fa-solid fa-child-reaching"></i> 個別支援計画書アシスタント</h1>
-            <p class="subtitle">児童の情報から、5領域に基づいた専門的な支援計画を自動作成します。</p>
-        </header>
 
         <main>
             <form id="planForm" enctype="multipart/form-data">
 
                 <!-- セクション1: 過去の計画書PDF -->
-                <div class="glass-panel">
+                <div class="panel">
                     <h2><i class="fa-solid fa-file-pdf"></i> 過去の個別支援計画書（PDF）</h2>
                     <p class="section-desc">過去の計画書をアップロードすると、内容との整合性を保った計画を作成します。<br>また、PDFから氏名・年齢・診断名等を自動で読み取り、下の入力欄に反映します。</p>
                     <div class="form-group">
@@ -40,7 +47,7 @@
                 </div>
 
                 <!-- セクション2: 教室情報 -->
-                <div class="glass-panel">
+                <div class="panel">
                     <h2><i class="fa-solid fa-school"></i> 教室情報</h2>
                     <div class="form-group">
                         <label for="classroomName">教室名 <span class="optional">任意</span></label>
@@ -53,7 +60,7 @@
                 </div>
 
                 <!-- セクション3: 利用者情報 -->
-                <div class="glass-panel">
+                <div class="panel">
                     <h2><i class="fa-solid fa-user-pen"></i> 利用者情報</h2>
                     <div class="form-row">
                         <div class="form-group half">
@@ -72,7 +79,7 @@
                 </div>
 
                 <!-- セクション4: 日々の様子・アセスメント -->
-                <div class="glass-panel">
+                <div class="panel">
                     <h2><i class="fa-solid fa-clipboard-list"></i> 日々の様子・アセスメント</h2>
                     <div class="form-group">
                         <label for="childStatus">日々の様子・気になる特性・興味・ニーズ <span class="required">必須</span></label>
@@ -91,7 +98,7 @@
                 </div>
 
                 <!-- セクション5: 家族・目標 -->
-                <div class="glass-panel">
+                <div class="panel">
                     <h2><i class="fa-solid fa-people-roof"></i> 家族の意向・目標設定</h2>
                     <div class="form-group">
                         <label for="familyWishes">家族の意向・希望 <span class="optional">任意</span></label>
@@ -131,10 +138,11 @@
             </div>
         </main>
 
-        <footer>
-            <p>&copy; 2026 個別支援計画書 自動作成アシスタント (AI Powered)</p>
-        </footer>
     </div>
+
+    <footer>
+        <p>&copy; 2026 個別支援計画書 自動作成アシスタント（ウィズ・ユー提供）</p>
+    </footer>
 
     <script src="app.js"></script>
 </body>
