@@ -28,6 +28,9 @@
     <div class="hero">
         <h1>お子さま一人ひとりに、<span class="hero-accent">寄り添う支援計画</span>を。</h1>
         <p class="hero-subtitle">AIが児発管の業務をサポート。5領域に基づく個別支援計画書を自動で作成します。</p>
+        <button type="button" id="openObservationBtn" class="hero-sub-btn">
+            <i class="fa-solid fa-lightbulb"></i> 観察支援モード（目標例を見る）
+        </button>
     </div>
 
     <div class="container">
@@ -138,6 +141,32 @@
             </div>
         </main>
 
+    </div>
+
+    <!-- 観察支援モード モーダル -->
+    <div id="observationModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-lightbulb"></i> 観察支援モード：目標例集</h2>
+                <button type="button" id="closeObservationBtn" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="modal-desc">過去の個別支援計画書から集めた目標例です。5領域で絞り込みやキーワード検索ができます。クリックすると「日々の様子」欄に参考として追記されます。</p>
+            <div class="modal-filters">
+                <div class="filter-row">
+                    <button type="button" class="domain-chip active" data-domain="">全て</button>
+                    <button type="button" class="domain-chip" data-domain="健康や生活">健康・生活</button>
+                    <button type="button" class="domain-chip" data-domain="運動や感覚">運動・感覚</button>
+                    <button type="button" class="domain-chip" data-domain="認知や行動">認知・行動</button>
+                    <button type="button" class="domain-chip" data-domain="言語やコミュニケーション">言語・コミュニケーション</button>
+                    <button type="button" class="domain-chip" data-domain="人間関係や社会性">人間関係・社会性</button>
+                </div>
+                <input type="text" id="observationSearch" placeholder="キーワードで絞り込み（例: トイレ、集中、友達）">
+            </div>
+            <div class="modal-results">
+                <div id="observationCount" class="results-count"></div>
+                <div id="observationList" class="results-list"></div>
+            </div>
+        </div>
     </div>
 
     <footer>
