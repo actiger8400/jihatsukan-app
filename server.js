@@ -2,54 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
-const fs = require('fs');
-const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// 参照データ（目標例集）の読み込み
-let goalExamples = [];
-try {
-    const csvPath = path.join(__dirname, 'data', 'goals_reference.csv');
-    const csvContent = fs.readFileSync(csvPath, 'utf8').replace(/^\uFEFF/, '');
-    goalExamples = parseGoalsCsv(csvContent);
-    console.log(`Loaded ${goalExamples.length} goal examples`);
-} catch (err) {
-    console.warn('goals_reference.csv not found or unreadable:', err.message);
-}
-
-// CSV: 「具体的な達成目標, 5領域」形式をパース（複数行セル対応）
-function parseGoalsCsv(text) {
-    const rows = [];
-    let cur = '';
-    let inQuote = false;
-    const cells = [];
-
-    for (let i = 0; i < text.length; i++) {
-        const c = text[i];
-        if (c === '"') {
-            if (inQuote && text[i + 1] === '"') { cur += '"'; i++; }
-            else inQuote = !inQuote;
-        } else if (c === ',' && !inQuote) {
-            cells.push(cur); cur = '';
-        } else if ((c === '\r' || c === '\n') && !inQuote) {
-            if (c === '\r' && text[i + 1] === '\n') i++;
-            cells.push(cur); cur = '';
-            if (cells.length >= 2 && (cells[0] || cells[1])) rows.push(cells.slice(0, 2));
-            cells.length = 0;
-        } else {
-            cur += c;
-        }
-    }
-    if (cur || cells.length) { cells.push(cur); if (cells[0] || cells[1]) rows.push(cells.slice(0, 2)); }
-
-    // ヘッダ行を除外
-    const dataRows = rows.filter((r, idx) => !(idx === 0 && r[0] && r[0].includes('具体的')));
-    return dataRows.map(r => ({
-        goal: (r[0] || '').trim(),
-        domains: (r[1] || '').split(/[\n、,]/).map(s => s.trim()).filter(Boolean)
-    })).filter(e => e.goal);
-}
 
 // multer: メモリストレージ（ファイルをディスクに保存しない）
 const upload = multer({
@@ -72,21 +26,6 @@ const uploadFields = upload.fields([
 
 app.use(express.json());
 app.use(express.static('public'));
-
-// 目標例集（観察支援モード用データ）
-app.get('/api/goal-examples', (req, res) => {
-    const domain = req.query.domain; // 例: 健康や生活
-    const keyword = (req.query.q || '').trim();
-
-    let results = goalExamples;
-    if (domain) {
-        results = results.filter(e => e.domains.some(d => d.includes(domain)));
-    }
-    if (keyword) {
-        results = results.filter(e => e.goal.includes(keyword));
-    }
-    res.json({ total: goalExamples.length, filtered: results.length, examples: results });
-});
 
 // PDFからテキスト抽出
 async function extractPdfText(fileBuffer, maxLength) {
