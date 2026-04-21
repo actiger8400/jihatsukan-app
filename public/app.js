@@ -80,7 +80,12 @@ pdfFileInput.addEventListener('change', async () => {
     }
 });
 
-// アセスメントシートPDFのフィードバック
+// アセスメントシートPDF: フィードバック + 補助セクション切り替え
+const fallbackSections = document.getElementById('fallbackSections');
+function updateFallbackVisibility() {
+    const hasAssessment = !!assessmentPdfInput.files[0];
+    fallbackSections.classList.toggle('hidden', hasAssessment);
+}
 assessmentPdfInput.addEventListener('change', () => {
     const file = assessmentPdfInput.files[0];
     if (file) {
@@ -90,7 +95,10 @@ assessmentPdfInput.addEventListener('change', () => {
     } else {
         assessmentPdfStatus.textContent = '';
     }
+    updateFallbackVisibility();
 });
+// 初期表示
+updateFallbackVisibility();
 
 // Generate Plan Logic
 planForm.addEventListener('submit', async (e) => {
