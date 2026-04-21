@@ -97,8 +97,12 @@ planForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const status = document.getElementById('childStatus').value.trim();
-    if (!status) {
-        alert('日々の様子・気になる特性を入力してください。');
+    const assessment = document.getElementById('assessment').value.trim();
+    const hasAssessmentPdf = !!assessmentPdfInput.files[0];
+    const hasPastPdf = !!pdfFileInput.files[0];
+
+    if (!hasAssessmentPdf && !assessment && !status && !hasPastPdf) {
+        alert('アセスメントシート、アセスメント補足、日々の様子、過去の計画書のいずれかを入力してください。');
         return;
     }
 
@@ -108,7 +112,7 @@ planForm.addEventListener('submit', async (e) => {
     formData.append('childAge', document.getElementById('childAge').value.trim());
     formData.append('childProfile', document.getElementById('childProfile').value.trim());
     formData.append('childStatus', status);
-    formData.append('assessment', document.getElementById('assessment').value.trim());
+    formData.append('assessment', assessment);
     formData.append('familyWishes', document.getElementById('familyWishes').value.trim());
     formData.append('longTermGoal', document.getElementById('longTermGoal').value.trim());
     formData.append('shortTermGoal', document.getElementById('shortTermGoal').value.trim());

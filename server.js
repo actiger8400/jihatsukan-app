@@ -158,10 +158,6 @@ app.post('/api/generate', uploadFields, async (req, res) => {
         classroomName, classroomPolicy
     } = req.body;
 
-    if (!childStatus) {
-        return res.status(400).json({ error: '日々の様子・気になる特性は必須です。' });
-    }
-
     // 過去の計画書PDF解析
     let pastPlanText = '';
     if (req.files && req.files['pdfFile'] && req.files['pdfFile'][0]) {
@@ -182,6 +178,11 @@ app.post('/api/generate', uploadFields, async (req, res) => {
             console.error('Assessment PDF parse error:', err);
             return res.status(400).json({ error: 'アセスメントシートPDFの読み取りに失敗しました。' });
         }
+    }
+
+    // 入力チェック: アセスメント/日々の様子/過去計画書のいずれかが必要
+    if (!assessmentPdfText && !assessment && !childStatus && !pastPlanText) {
+        return res.status(400).json({ error: 'アセスメントシート、アセスメント補足、日々の様子、過去の計画書のいずれかを入力してください。' });
     }
 
     const model = 'gemini-2.5-flash';
@@ -270,17 +271,22 @@ ${data.classroomPolicy || '未記入'}
     sections.push(`【利用者情報】
 利用者名: ${data.childName || '未記入'}
 年齢・学年: ${data.childAge || '未記入'}
-基本情報（診断名、発達段階など）: ${data.childProfile || '未記入'}
-日々の様子・気になる特性・興味・ニーズ:
-${data.childStatus}`);
+基本情報（診断名、発達段階など）: ${data.childProfile || '未記入'}`);
 
-    // アセスメント（テキスト入力 + PDFテキスト）
+    // アセスメント（メイン情報源）
     const assessmentParts = [];
-    if (data.assessment) assessmentParts.push(data.assessment);
     if (data.assessmentPdfText) assessmentParts.push('【アセスメントシートPDFより抽出】\n' + data.assessmentPdfText);
+    if (data.assessment) assessmentParts.push('【アセスメント補足】\n' + data.assessment);
     if (assessmentParts.length > 0) {
-        sections.push(`【アセスメント（現在の状況評価）】
+        sections.push(`【アセスメント（メイン情報源・現在の状況評価）】
+以下のアセスメント情報を最優先で参照し、5領域別の支援計画を構築してください。
 ${assessmentParts.join('\n\n')}`);
+    }
+
+    // 日々の様子（補足情報）
+    if (data.childStatus) {
+        sections.push(`【日々の様子（補足）】
+${data.childStatus}`);
     }
 
     // 家族の意向・目標

@@ -140,6 +140,42 @@ body {
     box-shadow: 0 4px 16px rgba(178, 137, 48, 0.06);
 }
 
+/* メインパネル（アセスメント） */
+.panel-primary {
+    border: 2px solid var(--accent);
+    background: linear-gradient(135deg, #fffef9 0%, var(--lightest-accent) 100%);
+    box-shadow: 0 6px 24px rgba(252, 195, 0, 0.18);
+    position: relative;
+}
+.panel-primary::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px;
+    height: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--sub-accent));
+    border-radius: 16px 16px 0 0;
+}
+.section-primary-badge {
+    background: linear-gradient(135deg, var(--accent), var(--sub-accent));
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    margin-left: auto;
+    letter-spacing: 0.04em;
+}
+.recommended {
+    background: var(--sub-accent);
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-left: 8px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
 h2 {
     font-size: 1.15rem;
     color: var(--text);

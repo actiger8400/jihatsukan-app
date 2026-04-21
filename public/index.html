@@ -26,8 +26,8 @@
     </header>
 
     <div class="hero">
-        <h1>お子さま一人ひとりに、<span class="hero-accent">寄り添う支援計画</span>を。</h1>
-        <p class="hero-subtitle">AIが児発管の業務をサポート。5領域に基づく個別支援計画書を自動で作成します。</p>
+        <h1>アセスメントから、<span class="hero-accent">個別支援計画を自動作成</span>。</h1>
+        <p class="hero-subtitle">アセスメントシートをアップロードするだけで、5領域に基づく個別支援計画書を作成します。</p>
     </div>
 
     <div class="container">
@@ -35,27 +35,30 @@
         <main>
             <form id="planForm" enctype="multipart/form-data">
 
-                <!-- セクション1: 過去の計画書PDF -->
+                <!-- セクション1: アセスメントシート（メイン） -->
+                <div class="panel panel-primary">
+                    <h2><i class="fa-solid fa-file-lines"></i> アセスメントシート <span class="section-primary-badge">メイン入力</span></h2>
+                    <p class="section-desc">アセスメントシートのPDFをアップロードしてください。内容を読み取って支援計画に反映します。</p>
+                    <div class="form-group">
+                        <label for="assessmentPdf">アセスメントシート（PDF）<span class="recommended">推奨</span></label>
+                        <input type="file" id="assessmentPdf" accept=".pdf">
+                        <div id="assessmentPdfStatus" class="file-status"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assessment">アセスメント補足（テキスト入力）<span class="optional">任意</span></label>
+                        <p class="field-desc">PDFで読み取れない内容や、追加で伝えたい情報があればご記入ください。</p>
+                        <textarea id="assessment" rows="4" placeholder="例:&#10;・WISC-V結果、行動観察の所見&#10;・他機関からの情報&#10;・最近見られる新しい行動や興味"></textarea>
+                    </div>
+                </div>
+
+                <!-- セクション2: 過去の計画書PDF -->
                 <div class="panel">
                     <h2><i class="fa-solid fa-file-pdf"></i> 過去の個別支援計画書（PDF）</h2>
-                    <p class="section-desc">過去の計画書をアップロードすると、内容との整合性を保った計画を作成します。<br>また、PDFから氏名・年齢・診断名等を自動で読み取り、下の入力欄に反映します。</p>
+                    <p class="section-desc">過去の計画書をアップロードすると、内容との整合性を保った計画を作成します。氏名・年齢・診断名等も自動で読み取ります。</p>
                     <div class="form-group">
                         <label for="pdfFile">PDFファイルを選択 <span class="optional">任意</span></label>
                         <input type="file" id="pdfFile" accept=".pdf">
                         <div id="pdfStatus" class="file-status"></div>
-                    </div>
-                </div>
-
-                <!-- セクション2: 教室情報 -->
-                <div class="panel">
-                    <h2><i class="fa-solid fa-school"></i> 教室情報</h2>
-                    <div class="form-group">
-                        <label for="classroomName">教室名 <span class="optional">任意</span></label>
-                        <input type="text" id="classroomName" placeholder="例: ○○教室 △△校">
-                    </div>
-                    <div class="form-group">
-                        <label for="classroomPolicy">教室の特徴・方針 <span class="optional">任意</span></label>
-                        <textarea id="classroomPolicy" rows="3" placeholder="例:&#10;・小集団療育を中心に、社会性の向上を重視&#10;・運動プログラムを毎日実施&#10;・保護者との連携を密に行い、家庭での般化を支援"></textarea>
                     </div>
                 </div>
 
@@ -78,26 +81,30 @@
                     </div>
                 </div>
 
-                <!-- セクション4: 日々の様子・アセスメント -->
+                <!-- セクション4: 教室情報 -->
                 <div class="panel">
-                    <h2><i class="fa-solid fa-clipboard-list"></i> 日々の様子・アセスメント</h2>
+                    <h2><i class="fa-solid fa-school"></i> 教室情報</h2>
                     <div class="form-group">
-                        <label for="childStatus">日々の様子・気になる特性・興味・ニーズ <span class="required">必須</span></label>
-                        <textarea id="childStatus" rows="5" placeholder="例:&#10;・友達とおもちゃの貸し借りがうまくできず、トラブルになることが多い&#10;・電車やブロックなど好きな物には長時間集中できる&#10;・言葉の遅れがあり、二語文は出るが要求を言葉で伝えるのが苦手" required></textarea>
+                        <label for="classroomName">教室名 <span class="optional">任意</span></label>
+                        <input type="text" id="classroomName" placeholder="例: ○○教室 △△校">
                     </div>
                     <div class="form-group">
-                        <label for="assessmentPdf">アセスメントシート（PDF）<span class="optional">任意</span></label>
-                        <p class="field-desc">アセスメントシートのPDFをアップロードすると、内容を読み取って支援計画に反映します。</p>
-                        <input type="file" id="assessmentPdf" accept=".pdf">
-                        <div id="assessmentPdfStatus" class="file-status"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="assessment">アセスメント補足（テキスト入力）<span class="optional">任意</span></label>
-                        <textarea id="assessment" rows="3" placeholder="例: WISC-V結果、行動観察の所見、他機関からの情報など"></textarea>
+                        <label for="classroomPolicy">教室の特徴・方針 <span class="optional">任意</span></label>
+                        <textarea id="classroomPolicy" rows="3" placeholder="例:&#10;・小集団療育を中心に、社会性の向上を重視&#10;・運動プログラムを毎日実施&#10;・保護者との連携を密に行い、家庭での般化を支援"></textarea>
                     </div>
                 </div>
 
-                <!-- セクション5: 家族・目標 -->
+                <!-- セクション5: 日々の様子（補足） -->
+                <div class="panel">
+                    <h2><i class="fa-solid fa-clipboard-list"></i> 日々の様子（補足）</h2>
+                    <p class="section-desc">アセスメントに加えて、日々の様子で気になる点があれば記入してください。</p>
+                    <div class="form-group">
+                        <label for="childStatus">日々の様子・気になる特性・興味・ニーズ <span class="optional">任意</span></label>
+                        <textarea id="childStatus" rows="5" placeholder="例:&#10;・友達とおもちゃの貸し借りがうまくできず、トラブルになることが多い&#10;・電車やブロックなど好きな物には長時間集中できる&#10;・言葉の遅れがあり、二語文は出るが要求を言葉で伝えるのが苦手"></textarea>
+                    </div>
+                </div>
+
+                <!-- セクション6: 家族・目標 -->
                 <div class="panel">
                     <h2><i class="fa-solid fa-people-roof"></i> 家族の意向・目標設定</h2>
                     <div class="form-group">
@@ -121,7 +128,7 @@
             </form>
 
             <!-- 結果セクション -->
-            <div class="glass-panel result-section hidden" id="resultContainer">
+            <div class="panel result-section hidden" id="resultContainer">
                 <div class="result-header">
                     <h2><i class="fa-regular fa-clipboard"></i> 作成結果</h2>
                     <div class="result-actions">
