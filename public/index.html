@@ -38,7 +38,7 @@
                 <!-- セクション1: アセスメントシート（メイン） -->
                 <div class="panel panel-primary">
                     <h2><i class="fa-solid fa-file-lines"></i> アセスメントシート <span class="section-primary-badge">メイン入力</span></h2>
-                    <p class="section-desc">アセスメントシートのPDFをアップロードしてください。内容を読み取って支援計画に反映します。</p>
+                    <p class="section-desc">アセスメントシートのPDFをアップロードしてください。<strong>手書きでも読み取り可能</strong>です。内容を読み取って支援計画に反映します。</p>
                     <div class="form-group">
                         <label for="assessmentPdf">アセスメントシート（PDF）<span class="recommended">推奨</span></label>
                         <input type="file" id="assessmentPdf" accept=".pdf">
@@ -139,7 +139,7 @@
                 </div>
                 <div id="loadingIndicator" class="hidden">
                     <div class="spinner"></div>
-                    <p>AIが5領域に基づく支援計画を作成中です...<br>しばらくお待ちください（30秒〜1分程度）</p>
+                    <p>AIが5領域に基づく支援計画を作成中です...<br>PDFの読み取りと計画生成のため、1〜2分ほどお待ちください。</p>
                 </div>
                 <div id="resultContent" class="markdown-body"></div>
             </div>

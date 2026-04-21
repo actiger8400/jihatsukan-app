@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 // multer: メモリストレージ（ファイルをディスクに保存しない）
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 15 * 1024 * 1024 }, // 15MB（Gemini API制限 20MB より小さく）
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'application/pdf') {
             cb(null, true);
@@ -24,7 +24,7 @@ const uploadFields = upload.fields([
     { name: 'assessmentPdf', maxCount: 1 }     // アセスメントシート
 ]);
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(express.static('public'));
 
 // PDFからテキスト抽出
@@ -158,30 +158,32 @@ app.post('/api/generate', uploadFields, async (req, res) => {
         classroomName, classroomPolicy
     } = req.body;
 
-    // 過去の計画書PDF解析
+    // PDFファイル取得
+    const pastPdfFile = req.files && req.files['pdfFile'] && req.files['pdfFile'][0];
+    const assessmentPdfFile = req.files && req.files['assessmentPdf'] && req.files['assessmentPdf'][0];
+
+    // 過去の計画書PDF: テキスト抽出（印字なら成功、手書きは空になる）
     let pastPlanText = '';
-    if (req.files && req.files['pdfFile'] && req.files['pdfFile'][0]) {
+    if (pastPdfFile) {
         try {
-            pastPlanText = await extractPdfText(req.files['pdfFile'][0].buffer, 8000);
+            pastPlanText = await extractPdfText(pastPdfFile.buffer, 8000);
         } catch (err) {
             console.error('PDF parse error:', err);
-            return res.status(400).json({ error: '計画書PDFの読み取りに失敗しました。' });
         }
     }
 
-    // アセスメントシートPDF解析
+    // アセスメントPDF: テキスト抽出
     let assessmentPdfText = '';
-    if (req.files && req.files['assessmentPdf'] && req.files['assessmentPdf'][0]) {
+    if (assessmentPdfFile) {
         try {
-            assessmentPdfText = await extractPdfText(req.files['assessmentPdf'][0].buffer, 6000);
+            assessmentPdfText = await extractPdfText(assessmentPdfFile.buffer, 6000);
         } catch (err) {
             console.error('Assessment PDF parse error:', err);
-            return res.status(400).json({ error: 'アセスメントシートPDFの読み取りに失敗しました。' });
         }
     }
 
     // 入力チェック: アセスメント/日々の様子/過去計画書のいずれかが必要
-    if (!assessmentPdfText && !assessment && !childStatus && !pastPlanText) {
+    if (!assessmentPdfFile && !assessmentPdfText && !assessment && !childStatus && !pastPdfFile && !pastPlanText) {
         return res.status(400).json({ error: 'アセスメントシート、アセスメント補足、日々の様子、過去の計画書のいずれかを入力してください。' });
     }
 
@@ -191,11 +193,35 @@ app.post('/api/generate', uploadFields, async (req, res) => {
     const prompt = buildPrompt({
         childName, childAge, childProfile, childStatus,
         assessment, assessmentPdfText, familyWishes, longTermGoal, shortTermGoal,
-        classroomName, classroomPolicy, pastPlanText
+        classroomName, classroomPolicy, pastPlanText,
+        hasAssessmentPdf: !!assessmentPdfFile,
+        hasPastPdf: !!pastPdfFile
     });
 
+    // Geminiへ送るパート構築: プロンプト + PDFファイル（inline_data）
+    const parts = [{ text: prompt }];
+
+    // アセスメントPDFを画像として同梱（手書き対応）
+    if (assessmentPdfFile) {
+        parts.push({
+            inline_data: {
+                mime_type: 'application/pdf',
+                data: assessmentPdfFile.buffer.toString('base64')
+            }
+        });
+    }
+    // 過去計画書PDFも同梱
+    if (pastPdfFile) {
+        parts.push({
+            inline_data: {
+                mime_type: 'application/pdf',
+                data: pastPdfFile.buffer.toString('base64')
+            }
+        });
+    }
+
     const requestBody = {
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts }]
     };
 
     try {
@@ -230,7 +256,7 @@ app.post('/api/generate', uploadFields, async (req, res) => {
 app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ error: 'ファイルサイズは10MB以下にしてください。' });
+            return res.status(400).json({ error: 'ファイルサイズは15MB以下にしてください。' });
         }
         return res.status(400).json({ error: 'ファイルアップロードエラー: ' + err.message });
     }
@@ -248,6 +274,18 @@ function buildPrompt(data) {
 令和6年度の放課後等デイサービス事業のガイドラインに沿った、5領域（健康・生活、運動・感覚、認知・行動、言語・コミュニケーション、人間関係・社会性）に基づく個別支援計画を作成してください。
 
 文章は、保護者や現場の施設スタッフが読んでも分かりやすく、温かみがありながら専門的な説得力を持つトーン（丁寧な日本語）で記述してください。`);
+
+    // PDF読み取り指示（マルチモーダル）
+    if (data.hasAssessmentPdf || data.hasPastPdf) {
+        const pdfList = [];
+        if (data.hasAssessmentPdf) pdfList.push('アセスメントシート');
+        if (data.hasPastPdf) pdfList.push('過去の個別支援計画書');
+        sections.push(`【添付PDFの読み取り指示（重要）】
+このメッセージには以下のPDFファイルが添付されています: ${pdfList.join('、')}
+PDFには印字された文字だけでなく、手書きの記入やチェックマークが含まれている可能性があります。
+添付PDFの全ページを丁寧に読み取り、記載された全ての情報（氏名、年齢、質問への回答、保護者の記述内容、チェック項目など）を漏れなく把握してから、支援計画を作成してください。
+手書き文字が判読困難な場合は「（判読困難）」と記し、前後の文脈から意図を推測しつつ計画に反映してください。`);
+    }
 
     // 過去の計画書
     if (data.pastPlanText) {
