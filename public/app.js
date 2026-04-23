@@ -263,53 +263,53 @@ pdfBtn.addEventListener('click', () => {
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         @page {
-            size: A4;
-            margin: 20mm 18mm;
+            size: A4 landscape;
+            margin: 12mm 14mm;
         }
         body {
             font-family: 'M PLUS Rounded 1c', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
             color: #333;
-            font-size: 11pt;
-            line-height: 1.9;
+            font-size: 10pt;
+            line-height: 1.7;
             margin: 0;
             padding: 0;
         }
         h1.doc-title {
             text-align: center;
-            font-size: 16pt;
+            font-size: 15pt;
             color: #4e342e;
             border-bottom: 3px solid #FF9800;
-            padding-bottom: 8px;
-            margin-bottom: 6px;
+            padding-bottom: 6px;
+            margin-bottom: 4px;
         }
         .doc-meta {
             text-align: center;
             font-size: 9pt;
             color: #888;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         h2 {
             color: #E65100;
-            font-size: 13pt;
+            font-size: 12pt;
             border-bottom: 2px solid #FFB74D;
             padding-bottom: 3px;
-            margin-top: 24px;
-            margin-bottom: 10px;
+            margin-top: 16px;
+            margin-bottom: 8px;
             page-break-after: avoid;
         }
         h3 {
             color: #EF6C00;
-            font-size: 11.5pt;
-            margin-top: 18px;
-            margin-bottom: 6px;
+            font-size: 11pt;
+            margin-top: 12px;
+            margin-bottom: 5px;
             page-break-after: avoid;
         }
         p {
-            margin: 0 0 8px 0;
+            margin: 0 0 6px 0;
             text-align: justify;
         }
         ul, ol {
-            margin: 4px 0 10px 0;
+            margin: 4px 0 8px 0;
             padding-left: 22px;
         }
         li {
@@ -328,27 +328,30 @@ pdfBtn.addEventListener('click', () => {
         hr {
             border: none;
             border-top: 1px solid #ddd;
-            margin: 16px 0;
+            margin: 12px 0;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 12px 0;
-            font-size: 9pt;
-            line-height: 1.5;
+            margin: 10px 0;
+            font-size: 8.5pt;
+            line-height: 1.45;
             page-break-inside: auto;
+            table-layout: auto;
+            word-break: break-word;
         }
         th {
             background: #FFF3E0;
             color: #4e342e;
-            padding: 6px 8px;
+            padding: 5px 6px;
             border: 1px solid #999;
             text-align: center;
             font-weight: 700;
             font-size: 8.5pt;
+            white-space: normal;
         }
         td {
-            padding: 6px 8px;
+            padding: 5px 6px;
             border: 1px solid #999;
             vertical-align: top;
         }
@@ -502,15 +505,18 @@ programPdfBtn.addEventListener('click', () => {
 <html lang="ja"><head><meta charset="UTF-8"><title>支援プログラム_${today}</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-@page { size: A4; margin: 20mm 18mm; }
-body { font-family: 'M PLUS Rounded 1c', sans-serif; color: #333; font-size: 11pt; line-height: 1.8; }
-h1.doc-title { text-align: center; font-size: 16pt; color: #4e342e; border-bottom: 3px solid #FF9800; padding-bottom: 8px; }
-.doc-meta { text-align: center; font-size: 9pt; color: #888; margin-bottom: 20px; }
-h2 { color: #E65100; font-size: 13pt; border-bottom: 2px solid #FFB74D; padding-bottom: 3px; margin-top: 20px; page-break-after: avoid; }
-h3 { color: #EF6C00; font-size: 11.5pt; margin-top: 16px; page-break-after: avoid; }
-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9pt; }
-th { background: #FFF3E0; padding: 6px; border: 1px solid #999; }
-td { padding: 6px; border: 1px solid #999; vertical-align: top; }
+@page { size: A4 landscape; margin: 12mm 14mm; }
+body { font-family: 'M PLUS Rounded 1c', sans-serif; color: #333; font-size: 10pt; line-height: 1.7; margin: 0; }
+h1.doc-title { text-align: center; font-size: 15pt; color: #4e342e; border-bottom: 3px solid #FF9800; padding-bottom: 6px; margin-bottom: 4px; }
+.doc-meta { text-align: center; font-size: 9pt; color: #888; margin-bottom: 12px; }
+h2 { color: #E65100; font-size: 12pt; border-bottom: 2px solid #FFB74D; padding-bottom: 3px; margin-top: 16px; page-break-after: avoid; }
+h3 { color: #EF6C00; font-size: 11pt; margin-top: 12px; page-break-after: avoid; }
+p { margin: 0 0 6px 0; }
+ul, ol { margin: 4px 0 8px 0; padding-left: 22px; }
+li { margin-bottom: 3px; page-break-inside: avoid; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 8.5pt; line-height: 1.45; table-layout: auto; word-break: break-word; }
+th { background: #FFF3E0; padding: 5px 6px; border: 1px solid #999; white-space: normal; font-size: 8.5pt; }
+td { padding: 5px 6px; border: 1px solid #999; vertical-align: top; }
 tr { page-break-inside: avoid; }
 </style></head><body>
 <h1 class="doc-title">支援プログラム</h1>
