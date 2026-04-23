@@ -224,7 +224,10 @@ app.post('/api/generate', uploadFields, async (req, res) => {
     }
 
     const requestBody = {
-        contents: [{ parts }]
+        contents: [{ parts }],
+        generationConfig: {
+            temperature: 0.4
+        }
     };
 
     try {
@@ -302,7 +305,10 @@ app.post('/api/generate-program', programUpload, async (req, res) => {
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts }] })
+            body: JSON.stringify({
+                contents: [{ parts }],
+                generationConfig: { temperature: 0.4 }
+            })
         });
         const data = await response.json();
         if (!response.ok) {
