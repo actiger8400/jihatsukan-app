@@ -32,7 +32,19 @@
 
     <div class="container">
 
+        <!-- タブ切り替え -->
+        <div class="tab-switcher">
+            <button type="button" class="tab-btn active" data-tab="plan">
+                <i class="fa-solid fa-file-lines"></i> 個別支援計画
+            </button>
+            <button type="button" class="tab-btn" data-tab="program">
+                <i class="fa-solid fa-calendar-days"></i> 支援プログラム
+            </button>
+        </div>
+
         <main>
+            <!-- タブ1: 個別支援計画 -->
+            <section id="tab-plan" class="tab-content active">
             <form id="planForm" enctype="multipart/form-data">
 
                 <!-- セクション1: 教室情報 -->
@@ -151,6 +163,66 @@
                 </div>
                 <div id="resultContent" class="markdown-body"></div>
             </div>
+            </section>
+
+            <!-- タブ2: 支援プログラム -->
+            <section id="tab-program" class="tab-content">
+            <div class="panel program-section" id="programSection">
+                <div class="program-header">
+                    <h2><i class="fa-solid fa-calendar-days"></i> 支援プログラムを作成</h2>
+                </div>
+                <p class="section-desc">作成した個別支援計画書のPDFをアップロードすると、具体的な支援プログラムを作成します。<br>
+                    <strong>1名分</strong>なら個別支援プログラム、<strong>2名分以上</strong>なら集団プログラムとして生成されます。</p>
+
+                <form id="programForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="planPdfs">個別支援計画書（PDF）複数選択可 <span class="required">必須</span></label>
+                        <input type="file" id="planPdfs" name="planPdfs" accept=".pdf" multiple>
+                        <div id="planPdfsStatus" class="file-status"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="programClassroomName">教室名 <span class="optional">任意</span></label>
+                        <input type="text" id="programClassroomName" placeholder="例: ウィズ・ユー○○教室">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="programClassroomPolicy">教室の特徴・方針 <span class="optional">任意</span></label>
+                        <textarea id="programClassroomPolicy" rows="2" placeholder="例: 小集団療育中心、運動プログラムを毎日実施"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sessionDuration">1セッションの時間・頻度 <span class="optional">任意</span></label>
+                        <input type="text" id="sessionDuration" placeholder="例: 60分 / 週3回">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additionalNote">追加の指示・条件 <span class="optional">任意</span></label>
+                        <textarea id="additionalNote" rows="2" placeholder="例: 運動系プログラム中心、季節の行事を取り入れたいなど"></textarea>
+                    </div>
+
+                    <button type="submit" id="generateProgramBtn" class="primary-btn">
+                        <i class="fa-solid fa-calendar-plus"></i> 支援プログラムを作成する
+                    </button>
+                </form>
+
+                <div id="programResultContainer" class="hidden" style="margin-top: 24px;">
+                    <div class="result-header">
+                        <h2><i class="fa-regular fa-clipboard"></i> プログラム作成結果 <span id="programModeBadge" class="phase-badge"></span></h2>
+                        <div class="result-actions">
+                            <button id="programPdfBtn" class="secondary-btn"><i class="fa-solid fa-file-pdf"></i> PDF保存</button>
+                            <button id="programCopyBtn" class="secondary-btn"><i class="fa-regular fa-copy"></i> コピー</button>
+                        </div>
+                    </div>
+                    <div id="programLoading" class="hidden">
+                        <div class="spinner"></div>
+                        <p>AIが支援プログラムを作成中です...<br>複数PDFの読み取りのため2〜3分ほどお待ちください。</p>
+                    </div>
+                    <div id="programResultContent" class="markdown-body"></div>
+                </div>
+            </div>
+            </section>
+
         </main>
 
     </div>

@@ -1,3 +1,15 @@
+// タブ切り替え
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.tab-content').forEach(c => {
+            c.classList.toggle('active', c.id === `tab-${target}`);
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+});
+
 // DOM Elements
 const planForm = document.getElementById('planForm');
 const generateBtn = document.getElementById('generateBtn');
@@ -380,4 +392,131 @@ resetBtn.addEventListener('click', () => {
 
     // 画面トップにスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ==========================================
+// フェーズ2: 支援プログラム生成
+// ==========================================
+const programForm = document.getElementById('programForm');
+const planPdfsInput = document.getElementById('planPdfs');
+const planPdfsStatus = document.getElementById('planPdfsStatus');
+const generateProgramBtn = document.getElementById('generateProgramBtn');
+const programResultContainer = document.getElementById('programResultContainer');
+const programLoading = document.getElementById('programLoading');
+const programResultContent = document.getElementById('programResultContent');
+const programModeBadge = document.getElementById('programModeBadge');
+const programCopyBtn = document.getElementById('programCopyBtn');
+const programPdfBtn = document.getElementById('programPdfBtn');
+
+planPdfsInput.addEventListener('change', () => {
+    const files = Array.from(planPdfsInput.files);
+    if (files.length === 0) {
+        planPdfsStatus.textContent = '';
+        return;
+    }
+    const totalMB = (files.reduce((s, f) => s + f.size, 0) / 1024 / 1024).toFixed(1);
+    const mode = files.length >= 2 ? '集団プログラム' : '個別支援プログラム';
+    planPdfsStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${files.length}名分を選択中（計${totalMB}MB） → <strong>${mode}</strong>として生成されます`;
+    planPdfsStatus.style.color = '#4CAF50';
+});
+
+programForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const files = Array.from(planPdfsInput.files);
+    if (files.length === 0) {
+        alert('個別支援計画書のPDFを1件以上アップロードしてください。');
+        return;
+    }
+
+    const formData = new FormData();
+    files.forEach(f => formData.append('planPdfs', f));
+    formData.append('classroomName', document.getElementById('programClassroomName').value.trim());
+    formData.append('classroomPolicy', document.getElementById('programClassroomPolicy').value.trim());
+    formData.append('sessionDuration', document.getElementById('sessionDuration').value.trim());
+    formData.append('additionalNote', document.getElementById('additionalNote').value.trim());
+
+    generateProgramBtn.disabled = true;
+    programResultContainer.classList.remove('hidden');
+    programLoading.classList.remove('hidden');
+    programResultContent.innerHTML = '';
+    programResultContainer.scrollIntoView({ behavior: 'smooth' });
+
+    try {
+        const response = await fetch('/api/generate-program', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'APIエラー');
+
+        const rawHtml = marked.parse(data.result);
+        const cleanHtml = DOMPurify.sanitize(rawHtml);
+
+        programLoading.classList.add('hidden');
+        programResultContent.innerHTML = cleanHtml;
+        programModeBadge.textContent = data.mode === 'group'
+            ? `集団プログラム（${data.count}名）`
+            : `個別プログラム（${data.count}名）`;
+    } catch (error) {
+        console.error('Program generation error:', error);
+        programLoading.classList.add('hidden');
+        programResultContent.innerHTML = DOMPurify.sanitize(
+            '<div style="color: red; padding: 10px; background: rgba(255,0,0,0.1); border-radius: 5px;">' +
+            '<p><strong>エラーが発生しました:</strong></p>' +
+            '<p>' + error.message + '</p>' +
+            '</div>'
+        );
+    } finally {
+        generateProgramBtn.disabled = false;
+    }
+});
+
+// プログラム結果のコピー
+programCopyBtn.addEventListener('click', async () => {
+    const original = programCopyBtn.innerHTML;
+    const html = programResultContent.innerHTML;
+    const plain = htmlToPlainTextWithTables(programResultContent);
+    try {
+        if (typeof ClipboardItem !== 'undefined' && navigator.clipboard.write) {
+            const item = new ClipboardItem({
+                'text/html': new Blob([html], { type: 'text/html' }),
+                'text/plain': new Blob([plain], { type: 'text/plain' })
+            });
+            await navigator.clipboard.write([item]);
+        } else {
+            await navigator.clipboard.writeText(plain);
+        }
+        programCopyBtn.innerHTML = '<i class="fa-solid fa-check"></i> コピーしました';
+        setTimeout(() => programCopyBtn.innerHTML = original, 2000);
+    } catch {
+        alert('コピーに失敗しました。');
+    }
+});
+
+// プログラム結果のPDF出力
+programPdfBtn.addEventListener('click', () => {
+    const printWindow = window.open('', '_blank');
+    const today = new Date().toISOString().slice(0, 10);
+    const title = programModeBadge.textContent || 'プログラム';
+    printWindow.document.write(`<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><title>支援プログラム_${today}</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+@page { size: A4; margin: 20mm 18mm; }
+body { font-family: 'M PLUS Rounded 1c', sans-serif; color: #333; font-size: 11pt; line-height: 1.8; }
+h1.doc-title { text-align: center; font-size: 16pt; color: #4e342e; border-bottom: 3px solid #FF9800; padding-bottom: 8px; }
+.doc-meta { text-align: center; font-size: 9pt; color: #888; margin-bottom: 20px; }
+h2 { color: #E65100; font-size: 13pt; border-bottom: 2px solid #FFB74D; padding-bottom: 3px; margin-top: 20px; page-break-after: avoid; }
+h3 { color: #EF6C00; font-size: 11.5pt; margin-top: 16px; page-break-after: avoid; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9pt; }
+th { background: #FFF3E0; padding: 6px; border: 1px solid #999; }
+td { padding: 6px; border: 1px solid #999; vertical-align: top; }
+tr { page-break-inside: avoid; }
+</style></head><body>
+<h1 class="doc-title">支援プログラム</h1>
+<div class="doc-meta">${title}　｜　作成日: ${today}</div>
+${programResultContent.innerHTML}
+</body></html>`);
+    printWindow.document.close();
+    printWindow.onload = () => setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
 });

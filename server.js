@@ -24,6 +24,9 @@ const uploadFields = upload.fields([
     { name: 'assessmentPdf', maxCount: 1 }     // アセスメントシート
 ]);
 
+// プログラム生成用（複数PDF）
+const programUpload = upload.array('planPdfs', 30);
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static('public'));
 
@@ -251,6 +254,170 @@ app.post('/api/generate', uploadFields, async (req, res) => {
         res.status(500).json({ error: 'サーバーエラーが発生しました。' });
     }
 });
+
+// ==========================================
+// プログラム生成エンドポイント（複数計画書PDF→支援プログラム）
+// ==========================================
+app.post('/api/generate-program', programUpload, async (req, res) => {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        return res.status(500).json({ error: 'サーバーにAPIキーが設定されていません。' });
+    }
+
+    const files = req.files || [];
+    if (files.length === 0) {
+        return res.status(400).json({ error: '個別支援計画書PDFを1件以上アップロードしてください。' });
+    }
+
+    const classroomName = (req.body.classroomName || '').trim();
+    const classroomPolicy = (req.body.classroomPolicy || '').trim();
+    const sessionDuration = (req.body.sessionDuration || '').trim();
+    const additionalNote = (req.body.additionalNote || '').trim();
+
+    const isGroup = files.length >= 2;
+    const model = 'gemini-2.5-flash';
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    const prompt = buildProgramPrompt({
+        fileCount: files.length,
+        isGroup,
+        classroomName,
+        classroomPolicy,
+        sessionDuration,
+        additionalNote
+    });
+
+    // parts: プロンプト + 各PDFをinline_dataで同梱
+    const parts = [{ text: prompt }];
+    for (const f of files) {
+        parts.push({
+            inline_data: {
+                mime_type: 'application/pdf',
+                data: f.buffer.toString('base64')
+            }
+        });
+    }
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts }] })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            console.error('Gemini API Error (program):', data);
+            return res.status(response.status).json({
+                error: data.error?.message || `Gemini API Error: ${response.status}`
+            });
+        }
+        if (data.candidates && data.candidates[0].content) {
+            res.json({
+                result: data.candidates[0].content.parts[0].text,
+                mode: isGroup ? 'group' : 'individual',
+                count: files.length
+            });
+        } else {
+            res.status(500).json({ error: '予期しないレスポンス形式です。' });
+        }
+    } catch (error) {
+        console.error('Program generation error:', error);
+        res.status(500).json({ error: 'サーバーエラーが発生しました。' });
+    }
+});
+
+function buildProgramPrompt(opts) {
+    const sections = [];
+
+    sections.push(`あなたは児童発達支援管理責任者（児発管）と連携する現場リーダー（サービス提供責任者）です。
+添付された個別支援計画書PDF（${opts.fileCount}名分）を全て丁寧に読み取り、5領域（健康・生活、運動・感覚、認知・行動、言語・コミュニケーション、人間関係・社会性）を踏まえた${opts.isGroup ? '集団' : '個別'}支援プログラムを作成してください。
+
+添付PDFには印字と手書きが含まれる可能性があります。すべての記載内容（氏名、達成目標、支援内容、留意事項など）を必ず読み取ってからプログラムを組み立ててください。`);
+
+    if (opts.classroomName || opts.classroomPolicy) {
+        sections.push(`【教室情報】
+教室名: ${opts.classroomName || '未記入'}
+教室の特徴・方針: ${opts.classroomPolicy || '未記入'}`);
+    }
+
+    if (opts.sessionDuration) {
+        sections.push(`【1回あたりの支援時間】
+${opts.sessionDuration}`);
+    }
+
+    if (opts.additionalNote) {
+        sections.push(`【追加の指示・条件】
+${opts.additionalNote}`);
+    }
+
+    if (opts.isGroup) {
+        sections.push(`【出力フォーマット要件（集団プログラム）】
+以下の構成・順番でMarkdown形式で出力してください。挨拶文や前置きは一切不要です。
+
+## 対象児童一覧
+添付PDFから読み取れた対象児童を表で記載してください。
+| # | 氏名 | 年齢 | 主な支援目標（5領域別の抜粋） |
+|---|---|---|---|
+
+## 共通する支援ニーズの分析
+全員に共通する課題、半数以上に共通する課題、個別性が高い課題を整理してください（箇条書き）。
+
+## 集団プログラム概要
+- **ねらい**: このプログラムで達成を目指すこと
+- **対応する5領域**: どの領域に効果があるか
+- **配慮する個別性**: 誰にどう配慮するか
+
+## 集団で実施できる支援プログラム（10案）
+対象児童全員が参加でき、共通する支援ニーズや5領域のいずれかに沿った具体的な活動プログラムを**10個**提案してください。
+それぞれ異なる領域や切り口（運動、感覚、制作、ゲーム、音楽、読み聞かせ、ルール遊び、協力活動、模倣遊び、感情表現など）から偏りなく選んでください。
+
+| # | プログラム名 | 対応する5領域 | 活動内容（具体的に） | ねらい | 所要時間 | 準備物 | 配慮ポイント |
+|---|---|---|---|---|---|---|---|
+| 1 | （例：フープ渡りリレー） | 運動や感覚／人間関係や社会性 | （具体的な進め方） | （何を育てるか） | 15分 | フープ×6 | （個別配慮） |
+（上記の列項目を守り、1〜10まで埋めてください）
+
+## 個別配慮一覧
+各児童ごとに、集団プログラムの中で特に注意すべき点を表形式で記載。
+| 氏名 | 特に配慮する場面 | 具体的な声かけ・対応例 |
+|---|---|---|
+
+## 評価の視点
+プログラム実施後、どの観点で評価・記録するかを箇条書きで記載。
+
+## 準備物・必要な環境
+物品・スペース・スタッフ配置などを箇条書きで記載。`);
+    } else {
+        sections.push(`【出力フォーマット要件（個別支援プログラム）】
+以下の構成・順番でMarkdown形式で出力してください。挨拶文や前置きは一切不要です。
+
+## 対象児童の情報
+添付PDFから読み取れた情報を箇条書きで記載（氏名・年齢・診断名・主な目標）。
+
+## プログラムのねらい
+この個別プログラムで達成を目指すこと（3〜5行）。
+
+## 週間支援プログラム表
+| セッション | 主な領域 | 活動内容 | ねらい | 評価指標 |
+|---|---|---|---|---|
+（週に実施する複数セッションを5〜8項目で記載）
+
+## 1セッションの構成例
+| 時間 | 活動名 | 具体的な内容 | 支援のポイント |
+|---|---|---|---|
+（導入〜振り返りまで時間配分とともに記載）
+
+## 声かけ・関わり方のポイント
+本児への具体的な声かけ例、関わり方の留意点を箇条書き。
+
+## 家庭・学校との連携
+ご家族や学校と共有すべき情報、協力をお願いすること。
+
+## 評価・見直しの視点
+いつ、どのように評価し、プログラムを見直すかを記載。`);
+    }
+
+    return sections.join('\n\n');
+}
 
 // multerエラーハンドリング
 app.use((err, req, res, next) => {
