@@ -28,12 +28,25 @@ app.use(helmet({
     }
 }));
 
-// CORS: 同一オリジンのみ許可
+// CORS: 同一オリジンと環境変数で許可されたオリジンのみ
 app.use(cors({
     origin: (origin, cb) => {
+        // 同一オリジン（Originヘッダなし、curl等）は常に許可
+        if (!origin) return cb(null, true);
+
         const allowed = (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean);
-        if (!origin || allowed.includes(origin)) cb(null, true);
-        else cb(new Error('Not allowed by CORS'));
+
+        // ホワイトリスト指定があれば、それのみ許可
+        if (allowed.length > 0) {
+            return allowed.includes(origin) ? cb(null, true) : cb(null, false);
+        }
+
+        // 未設定時は localhost と Render の同一ホスト系をデフォルト許可
+        const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+        const isRender = /\.onrender\.com$/.test(new URL(origin).hostname);
+        if (isLocalhost || isRender) return cb(null, true);
+
+        cb(null, false); // 不明オリジンはCORSヘッダ非付与（同一オリジンは引き続き動作）
     },
     credentials: true
 }));
