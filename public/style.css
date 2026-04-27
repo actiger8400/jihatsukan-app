@@ -68,9 +68,60 @@ body {
     font-weight: 500;
     margin-top: 2px;
 }
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.logout-link {
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+.logout-link:hover {
+    background: var(--lightest-accent);
+    color: var(--dark-accent);
+}
+.logout-link i { margin-right: 4px; }
 .site-status {
     font-size: 0.85rem;
     color: var(--text-light);
+}
+
+/* プライバシー通知 */
+.privacy-notice {
+    background: var(--lightest-sub-accent);
+    border-left: 4px solid var(--sub-accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+    color: var(--dark-sub-accent);
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+.privacy-notice i {
+    color: var(--sub-accent);
+    font-size: 1.3rem;
+    margin-top: 2px;
+}
+.privacy-notice a {
+    color: var(--dark-sub-accent);
+    text-decoration: underline;
+}
+footer a {
+    color: var(--lighter-accent);
+    text-decoration: none;
+}
+footer a:hover {
+    color: white;
+    text-decoration: underline;
 }
 .site-status .status-dot {
     color: #10B981;

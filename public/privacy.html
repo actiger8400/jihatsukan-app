@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プライバシーポリシー｜ウィズ・ユー 個別支援計画書アシスタント</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="withyou_logo背景無.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .privacy-page {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #f0e8d0;
+            box-shadow: 0 4px 16px rgba(178, 137, 48, 0.06);
+        }
+        .privacy-page h1 {
+            font-size: 1.6rem;
+            color: #404040;
+            border-bottom: 3px solid #fcc300;
+            padding-bottom: 10px;
+            margin-bottom: 24px;
+        }
+        .privacy-page h2 {
+            font-size: 1.15rem;
+            color: #b1560b;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            border: none;
+            padding: 0;
+        }
+        .privacy-page p, .privacy-page ul {
+            margin-bottom: 12px;
+            line-height: 1.9;
+        }
+        .privacy-page ul {
+            padding-left: 24px;
+        }
+        .privacy-page .meta {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 24px;
+            color: #b1560b;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="privacy-page">
+        <h1>プライバシーポリシー</h1>
+        <div class="meta">最終更新日: 2026年4月23日</div>
+
+        <p>「個別支援計画書アシスタント」（以下「本サービス」）における個人情報の取り扱いについて、以下の通り定めます。</p>
+
+        <h2>1. 取得する情報</h2>
+        <p>本サービスは、児童発達支援管理責任者の業務支援のため、以下の情報を取得することがあります。</p>
+        <ul>
+            <li>利用者（児童）の氏名・年齢・診断名等の基本情報</li>
+            <li>アセスメントシート、個別支援計画書のPDFファイル</li>
+            <li>家族の意向、長期・短期目標等の入力情報</li>
+            <li>教室名、教室の方針</li>
+            <li>サービス利用時のログイン情報（セッション）</li>
+        </ul>
+
+        <h2>2. 利用目的</h2>
+        <ul>
+            <li>個別支援計画書、支援プログラムの自動作成</li>
+            <li>サービスの動作維持、不正利用防止</li>
+        </ul>
+
+        <h2>3. 第三者への提供</h2>
+        <p>本サービスは、入力された情報を生成AIによって処理するため、以下の第三者へ情報を送信します。</p>
+        <ul>
+            <li>送信先: <strong>Google LLC（米国）</strong>のGemini APIサービス</li>
+            <li>送信内容: アップロードされたPDF、入力された児童・家族・教室の情報</li>
+            <li>処理方式: 有料ティア（Paid tier）契約のため、Googleのモデル学習には利用されません</li>
+            <li>ログ保管: Google側で最大60日間、不正利用検知のために保管されます。その後完全削除</li>
+        </ul>
+        <p>※個人情報保護法第28条に基づき、外国にある第三者への提供にあたります。本サービスのご利用前に、保護者・関係者から必要な同意を得てください。</p>
+
+        <h2>4. 保管・削除</h2>
+        <ul>
+            <li>本サービスのサーバーには、入力情報・PDF・生成結果を一切保存しません</li>
+            <li>処理が完了次第、メモリ上から破棄されます</li>
+            <li>セッション情報（ログイン状態）は最大8時間でクリアされます</li>
+        </ul>
+
+        <h2>5. セキュリティ対策</h2>
+        <ul>
+            <li>HTTPS（TLS）による通信の暗号化</li>
+            <li>パスワード認証によるアクセス制限</li>
+            <li>レート制限による不正アクセス防止</li>
+            <li>セキュリティヘッダー（XSS・クリックジャッキング対策）</li>
+        </ul>
+
+        <h2>6. 利用上の留意事項（運用ルール）</h2>
+        <p>本サービスご利用にあたっては、以下の運用ルールを遵守してください。</p>
+        <ul>
+            <li>児童名・記入者名は、可能な限り<strong>仮名（イニシャル等）</strong>で入力してください</li>
+            <li>本サービスは個別支援計画の<strong>素案作成支援ツール</strong>であり、最終確認・修正は児発管が行ってください</li>
+            <li>生成結果には誤りや不適切な表現が含まれる可能性があるため、必ず内容確認のうえ業務にご利用ください</li>
+            <li>パスワード等の認証情報は、許可された範囲外で共有しないでください</li>
+        </ul>
+
+        <h2>7. 改定について</h2>
+        <p>本ポリシーは、サービスの改善・法令の変更等に応じて改定する場合があります。</p>
+
+        <h2>8. お問い合わせ</h2>
+        <p>本サービス及び個人情報の取り扱いに関するお問い合わせは、ご所属の管理者までご連絡ください。</p>
+
+        <a href="/login" class="back-link">← ログイン画面に戻る</a>
+    </div>
+</body>
+</html>

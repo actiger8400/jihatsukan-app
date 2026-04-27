@@ -2,8 +2,57 @@ require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+const helmet = require('helmet');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// プロキシ（Render）越しなのでこれが必要
+app.set('trust proxy', 1);
+
+// セキュリティヘッダ（CSP・HSTS等）
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'"]
+        }
+    }
+}));
+
+// CORS: 同一オリジンのみ許可
+app.use(cors({
+    origin: (origin, cb) => {
+        const allowed = (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean);
+        if (!origin || allowed.includes(origin)) cb(null, true);
+        else cb(new Error('Not allowed by CORS'));
+    },
+    credentials: true
+}));
+
+// レート制限
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'ログイン試行回数が上限を超えました。15分後に再度お試しください。' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    message: { error: 'リクエストが多すぎます。少し時間を空けてからお試しください。' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // multer: メモリストレージ（ファイルをディスクに保存しない）
 const upload = multer({
@@ -28,7 +77,92 @@ const uploadFields = upload.fields([
 const programUpload = upload.array('planPdfs', 30);
 
 app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// セッション管理
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'dev-only-change-in-prod',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 8 * 60 * 60 * 1000 // 8時間
+    }
+}));
+
+// 認証ミドルウェア
+function requireAuth(req, res, next) {
+    if (req.session && req.session.authenticated) {
+        return next();
+    }
+    // APIならJSON、画面ならログインへリダイレクト
+    if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ error: 'ログインが必要です。', loginUrl: '/login' });
+    }
+    return res.redirect('/login');
+}
+
+// 公開リソース（ログイン画面・プライバシーポリシー・ロゴ画像・CSSなど）
+const PUBLIC_PATHS = ['/login', '/logout', '/privacy', '/style.css', '/withyou_logo背景無.png', '/favicon.ico'];
+
+app.use((req, res, next) => {
+    if (PUBLIC_PATHS.includes(req.path) || req.path.startsWith('/login')) {
+        return next();
+    }
+    // ルート及びアプリ画面・APIは認証必須
+    requireAuth(req, res, next);
+});
+
+// 静的ファイル配信（認証チェック後）
 app.use(express.static('public'));
+
+// ログイン画面
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// プライバシーポリシー画面（公開）
+app.get('/privacy', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
+});
+
+// ログイン処理
+app.post('/login', loginLimiter, async (req, res) => {
+    const { password } = req.body;
+    if (!password) {
+        return res.status(400).json({ error: 'パスワードを入力してください。' });
+    }
+
+    const hash = process.env.APP_PASSWORD_HASH;
+    const plain = process.env.APP_PASSWORD;
+
+    let ok = false;
+    if (hash) {
+        ok = await bcrypt.compare(password, hash);
+    } else if (plain) {
+        ok = password === plain;
+    } else {
+        return res.status(500).json({ error: 'サーバー側のパスワード設定がありません。' });
+    }
+
+    if (!ok) {
+        return res.status(401).json({ error: 'パスワードが正しくありません。' });
+    }
+
+    req.session.authenticated = true;
+    req.session.loginAt = new Date().toISOString();
+    res.json({ ok: true });
+});
+
+// ログアウト
+app.post('/logout', (req, res) => {
+    req.session.destroy(() => res.json({ ok: true }));
+});
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => res.redirect('/login'));
+});
 
 // PDFからテキスト抽出
 async function extractPdfText(fileBuffer, maxLength) {
@@ -37,7 +171,7 @@ async function extractPdfText(fileBuffer, maxLength) {
 }
 
 // 個別支援計画書PDFから利用者情報を抽出するエンドポイント
-app.post('/api/extract-pdf', upload.single('pdfFile'), async (req, res) => {
+app.post('/api/extract-pdf', apiLimiter, upload.single('pdfFile'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'PDFファイルが送信されていません。' });
     }
@@ -149,7 +283,7 @@ function extractFieldsFromPdf(text) {
 }
 
 // 支援計画生成エンドポイント
-app.post('/api/generate', uploadFields, async (req, res) => {
+app.post('/api/generate', apiLimiter, uploadFields, async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         return res.status(500).json({ error: 'サーバーにAPIキーが設定されていません。' });
@@ -261,7 +395,7 @@ app.post('/api/generate', uploadFields, async (req, res) => {
 // ==========================================
 // プログラム生成エンドポイント（複数計画書PDF→支援プログラム）
 // ==========================================
-app.post('/api/generate-program', programUpload, async (req, res) => {
+app.post('/api/generate-program', apiLimiter, programUpload, async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         return res.status(500).json({ error: 'サーバーにAPIキーが設定されていません。' });

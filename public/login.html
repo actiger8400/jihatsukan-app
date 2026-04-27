@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン｜ウィズ・ユー 個別支援計画書アシスタント</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="withyou_logo背景無.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #fffdf7 0%, #fce4d1 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 48px 40px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(178, 137, 48, 0.15);
+            border: 1px solid #f0e8d0;
+            text-align: center;
+        }
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+        }
+        .login-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #404040;
+            margin-bottom: 4px;
+        }
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: #6b6b6b;
+            margin-bottom: 32px;
+        }
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .login-form input {
+            padding: 14px 16px;
+            border: 2px solid #f0e8d0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: #fffef9;
+            transition: all 0.2s;
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: #fcc300;
+            box-shadow: 0 0 0 4px #ffefba;
+        }
+        .login-btn {
+            padding: 14px;
+            background: linear-gradient(135deg, #fcc300 0%, #f28830 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(252, 195, 0, 0.3);
+            font-family: inherit;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(252, 195, 0, 0.45);
+        }
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .login-error {
+            color: #c0392b;
+            font-size: 0.85rem;
+            min-height: 18px;
+            margin-top: 8px;
+        }
+        .login-footer {
+            margin-top: 24px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+        .login-footer a {
+            color: #b1560b;
+            text-decoration: none;
+        }
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="withyou_logo背景無.png" alt="ウィズ・ユー" class="login-logo">
+        <div class="login-title">個別支援計画書アシスタント</div>
+        <div class="login-subtitle">ご利用には認証が必要です</div>
+
+        <form class="login-form" id="loginForm">
+            <input type="password" id="password" placeholder="パスワードを入力" required autocomplete="current-password">
+            <button type="submit" class="login-btn" id="loginBtn">
+                <i class="fa-solid fa-right-to-bracket"></i> ログイン
+            </button>
+            <div class="login-error" id="loginError"></div>
+        </form>
+
+        <div class="login-footer">
+            <a href="/privacy">プライバシーポリシー</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const passwordInput = document.getElementById('password');
+        const errorEl = document.getElementById('loginError');
+        const loginBtn = document.getElementById('loginBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorEl.textContent = '';
+            loginBtn.disabled = true;
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: passwordInput.value })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    location.href = '/';
+                } else {
+                    errorEl.textContent = data.error || 'ログインに失敗しました。';
+                }
+            } catch (err) {
+                errorEl.textContent = '通信エラーが発生しました。';
+            } finally {
+                loginBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

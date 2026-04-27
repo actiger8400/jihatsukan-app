@@ -22,7 +22,10 @@
                 <div class="logo-sub">個別支援計画書アシスタント</div>
             </div>
         </div>
-        <div class="site-status"><span class="status-dot">●</span>稼働中</div>
+        <div class="header-right">
+            <span class="site-status"><span class="status-dot">●</span>稼働中</span>
+            <a href="/logout" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</a>
+        </div>
     </header>
 
     <div class="hero">
@@ -31,6 +34,15 @@
     </div>
 
     <div class="container">
+
+        <div class="privacy-notice">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+                <strong>個人情報の取り扱いについて</strong><br>
+                入力された情報はGemini API（Google）に送信されます。児童名・記入者名は可能な限り<strong>仮名（イニシャル等）</strong>でご入力ください。
+                詳細は<a href="/privacy" target="_blank">プライバシーポリシー</a>をご確認ください。
+            </div>
+        </div>
 
         <!-- タブ切り替え -->
         <div class="tab-switcher">
@@ -228,7 +240,10 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 個別支援計画書 自動作成アシスタント（ウィズ・ユー提供）</p>
+        <p>
+            &copy; 2026 個別支援計画書 自動作成アシスタント（ウィズ・ユー提供）　｜
+            <a href="/privacy" target="_blank">プライバシーポリシー</a>
+        </p>
     </footer>
 
     <script src="app.js"></script>
