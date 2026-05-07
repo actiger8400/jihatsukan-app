@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利用マニュアル｜ウィズ・ユー 個別支援計画書アシスタント</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="withyou_logo背景無.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .manual-container { max-width: 960px; margin: 0 auto; padding: 30px 20px 60px; }
+
+        .manual-toc {
+            background: linear-gradient(135deg, #fffef9 0%, #ffefba 100%);
+            border-radius: 14px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            border: 2px solid var(--accent);
+        }
+        .manual-toc h2 {
+            margin-top: 0;
+            border: none;
+            padding: 0;
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+        .manual-toc h2 i { background: var(--accent); color: white; }
+        .manual-toc ol {
+            margin: 12px 0 0;
+            padding-left: 22px;
+            columns: 2;
+            column-gap: 30px;
+        }
+        .manual-toc li { margin-bottom: 6px; line-height: 1.5; }
+        .manual-toc a {
+            color: var(--dark-accent);
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .manual-toc a:hover { color: var(--sub-accent); text-decoration: underline; }
+
+        .manual-section {
+            background: white;
+            border-radius: 14px;
+            padding: 28px 32px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 16px rgba(178, 137, 48, 0.06);
+        }
+        .manual-section h2 {
+            font-size: 1.2rem;
+            color: var(--text);
+            border-left: 6px solid var(--accent);
+            border-bottom: none;
+            padding: 0 0 0 16px;
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .manual-section h2 .badge {
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+        .manual-section h3 {
+            font-size: 1.05rem;
+            color: var(--dark-sub-accent);
+            margin: 24px 0 10px;
+        }
+        .manual-section h4 {
+            font-size: 0.95rem;
+            color: var(--text);
+            margin: 16px 0 6px;
+        }
+        .manual-section p { margin: 8px 0; line-height: 1.8; }
+        .manual-section ul, .manual-section ol { margin: 6px 0 12px 24px; line-height: 1.8; }
+        .manual-section li { margin-bottom: 4px; }
+
+        /* ステップガイド */
+        .step-guide {
+            background: linear-gradient(135deg, #fffef9 0%, #fdeee2 100%);
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin: 16px 0;
+            border-left: 5px solid var(--sub-accent);
+        }
+        .step-guide-title {
+            font-weight: 700;
+            color: var(--dark-sub-accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .step-guide ol { margin: 0; padding-left: 24px; }
+        .step-guide li { margin-bottom: 6px; }
+
+        /* 警告・ヒント */
+        .alert {
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            display: flex;
+            gap: 12px;
+            line-height: 1.7;
+        }
+        .alert i { font-size: 1.2rem; margin-top: 2px; flex-shrink: 0; }
+        .alert-warning {
+            background: #FFEBEE;
+            border-left: 4px solid #C62828;
+            color: #B71C1C;
+        }
+        .alert-tip {
+            background: #FFF8E1;
+            border-left: 4px solid var(--sub-accent);
+            color: var(--dark-sub-accent);
+        }
+        .alert-info {
+            background: #E3F2FD;
+            border-left: 4px solid #1976D2;
+            color: #0D47A1;
+        }
+
+        /* UIモックアップ（実際のUIを模した図） */
+        .ui-mock {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        .ui-mock-caption {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        .mock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: white;
+            border-bottom: 3px solid var(--accent);
+            border-radius: 8px 8px 0 0;
+        }
+        .mock-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mock-logo-img {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #fcc300, #f28830);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+        .mock-logo-text {
+            font-weight: 900;
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+        .mock-logo-sub {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        .mock-tabs {
+            display: flex;
+            gap: 4px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 4px;
+            margin: 12px 0;
+        }
+        .mock-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .mock-tab.active {
+            background: linear-gradient(135deg, var(--accent), var(--sub-accent));
+            color: white;
+        }
+        .mock-tab i { margin-right: 4px; }
+        .mock-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 8px 0;
+            position: relative;
+        }
+        .mock-panel.primary {
+            border: 2px solid var(--accent);
+            background: linear-gradient(135deg, #fffef9 0%, #ffefba 100%);
+        }
+        .mock-panel-title {
+            font-weight: 700;
+            color: var(--text);
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mock-panel-title i {
+            color: var(--sub-accent);
+            background: var(--lightest-sub-accent);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        .mock-input {
+            background: #fffef9;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin: 4px 0;
+        }
+        .mock-file {
+            border: 2px dashed var(--light-sub-accent);
+            background: #fffef9;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .mock-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent), var(--sub-accent));
+            color: white;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(252, 195, 0, 0.3);
+        }
+        .mock-btn-sec {
+            display: inline-block;
+            padding: 6px 14px;
+            background: white;
+            border: 2px solid var(--accent);
+            color: var(--dark-accent);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-right: 6px;
+        }
+        .arrow-down {
+            text-align: center;
+            color: var(--sub-accent);
+            font-size: 1.5rem;
+            margin: 8px 0;
+        }
+
+        /* テーブル */
+        .manual-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+        .manual-section th {
+            background: var(--lighter-accent);
+            padding: 10px;
+            border: 1px solid var(--accent);
+            text-align: center;
+            font-weight: 700;
+        }
+        .manual-section td {
+            padding: 10px;
+            border: 1px solid var(--border);
+            vertical-align: top;
+        }
+        .manual-section tr:nth-child(even) td {
+            background: rgba(255, 243, 224, 0.4);
+        }
+
+        /* バッジ */
+        .badge-required { background: var(--sub-accent); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+        .badge-optional { background: var(--light-accent); color: var(--dark-accent); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+        .badge-recommended { background: var(--sub-accent); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+
+        /* スクロールトップに戻るボタン */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent), var(--sub-accent));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(252, 195, 0, 0.4);
+            border: none;
+            font-size: 1.1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="site-logo">
+            <img src="withyou_logo背景無.png" alt="ウィズ・ユー" class="logo-img">
+            <div class="logo-text">
+                <div class="logo-main">ウィズ・ユー</div>
+                <div class="logo-sub">利用マニュアル</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <a href="/" class="logout-link"><i class="fa-solid fa-arrow-left"></i> アプリに戻る</a>
+            <a href="/logout" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</a>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1><i class="fa-solid fa-book-open" style="color: var(--sub-accent);"></i> 利用マニュアル</h1>
+        <p class="hero-subtitle">個別支援計画書アシスタントの使い方をご説明します。</p>
+    </div>
+
+    <div class="manual-container">
+
+        <!-- 目次 -->
+        <div class="manual-toc">
+            <h2><i class="fa-solid fa-list-ul"></i> 目次</h2>
+            <ol>
+                <li><a href="#sec1">システム概要</a></li>
+                <li><a href="#sec2">ログイン方法</a></li>
+                <li><a href="#sec3">個別支援計画の作成</a></li>
+                <li><a href="#sec4">支援プログラムの作成</a></li>
+                <li><a href="#sec5">結果の保存・出力</a></li>
+                <li><a href="#sec6">個人情報の取り扱い</a></li>
+                <li><a href="#sec7">トラブルシューティング</a></li>
+                <li><a href="#sec8">お問い合わせ</a></li>
+            </ol>
+        </div>
+
+        <!-- 1. システム概要 -->
+        <section id="sec1" class="manual-section">
+            <h2><i class="fa-solid fa-circle-info"></i> 1. システム概要</h2>
+
+            <h3>1.1 本システムでできること</h3>
+            <p>児童発達支援管理責任者（児発管）の業務を、生成AIがサポートします。</p>
+
+            <table>
+                <thead><tr><th>機能</th><th>内容</th></tr></thead>
+                <tbody>
+                    <tr><td><i class="fa-solid fa-file-lines"></i> 個別支援計画の自動作成</td><td>アセスメントシートのPDFや入力情報から、5領域に基づく計画書を作成</td></tr>
+                    <tr><td><i class="fa-solid fa-calendar-days"></i> 支援プログラムの自動作成</td><td>個別支援計画書から、個別または集団のプログラムを作成</td></tr>
+                    <tr><td><i class="fa-solid fa-pen"></i> 手書きPDF読み取り</td><td>手書きのアセスメントシートも自動で読み取り可能</td></tr>
+                    <tr><td><i class="fa-solid fa-file-export"></i> PDF・コピー出力</td><td>結果をPDF保存またはWord/Excelに表ごとコピー</td></tr>
+                </tbody>
+            </table>
+
+            <h3>1.2 動作環境</h3>
+            <ul>
+                <li>推奨ブラウザ: Google Chrome、Microsoft Edge（最新版）</li>
+                <li>インターネット接続必須</li>
+                <li>PCでの利用を推奨</li>
+            </ul>
+        </section>
+
+        <!-- 2. ログイン方法 -->
+        <section id="sec2" class="manual-section">
+            <h2><i class="fa-solid fa-right-to-bracket"></i> 2. ログイン方法</h2>
+
+            <div class="ui-mock">
+                <div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #fffdf7 0%, #fce4d1 100%); border-radius: 10px;">
+                    <div class="mock-logo-img" style="width: 60px; height: 60px; margin: 0 auto 12px; font-size: 1.4rem;"><i class="fa-solid fa-heart"></i></div>
+                    <div style="font-weight: 900; margin-bottom: 4px;">個別支援計画書アシスタント</div>
+                    <div style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 16px;">ご利用には認証が必要です</div>
+                    <div class="mock-input" style="max-width: 280px; margin: 0 auto 12px; text-align: left;">パスワードを入力</div>
+                    <div class="mock-btn" style="display: block; max-width: 280px; margin: 0 auto;"><i class="fa-solid fa-right-to-bracket"></i> ログイン</div>
+                </div>
+                <div class="ui-mock-caption">▲ ログイン画面のイメージ</div>
+            </div>
+
+            <div class="step-guide">
+                <div class="step-guide-title"><i class="fa-solid fa-list-ol"></i> ログイン手順</div>
+                <ol>
+                    <li>Webブラウザで本サービスのURLにアクセス</li>
+                    <li>ログイン画面が表示されたら、配布されたパスワードを入力</li>
+                    <li>「ログイン」ボタンをクリック</li>
+                    <li>メイン画面が表示されたら成功</li>
+                </ol>
+            </div>
+
+            <div class="alert alert-warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <strong>注意</strong><br>
+                    パスワードは業務関係者以外と共有しないでください。共用PCではログイン後、必ず画面右上の「ログアウト」をクリックしてください。セッションは8時間で自動的に切断されます。
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 個別支援計画の作成 -->
+        <section id="sec3" class="manual-section">
+            <h2><i class="fa-solid fa-file-lines"></i> 3. 個別支援計画の作成</h2>
+
+            <p>画面上部の「<strong>個別支援計画</strong>」タブを選択してください。</p>
+
+            <div class="ui-mock">
+                <div class="mock-tabs">
+                    <div class="mock-tab active"><i class="fa-solid fa-file-lines"></i> 個別支援計画</div>
+                    <div class="mock-tab"><i class="fa-solid fa-calendar-days"></i> 支援プログラム</div>
+                </div>
+                <div class="ui-mock-caption">▲ タブ切り替え</div>
+            </div>
+
+            <h3>3.1 入力項目（上から順に表示されます）</h3>
+
+            <div class="ui-mock">
+                <div class="mock-panel">
+                    <div class="mock-panel-title"><i class="fa-solid fa-school"></i> ① 教室情報 <span class="badge-optional">任意</span></div>
+                    <div class="mock-input">教室名</div>
+                    <div class="mock-input">教室の特徴・方針</div>
+                </div>
+                <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
+                <div class="mock-panel">
+                    <div class="mock-panel-title"><i class="fa-solid fa-clipboard-list"></i> ② 日々の様子 <span class="badge-optional">任意</span></div>
+                    <div class="mock-input">日々の様子・気になる特性・興味・ニーズ</div>
+                </div>
+                <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
+                <div class="mock-panel primary">
+                    <div class="mock-panel-title"><i class="fa-solid fa-file-lines"></i> ③ アセスメントシート <span class="badge-recommended">推奨</span></div>
+                    <div class="mock-file"><i class="fa-solid fa-file-pdf"></i> アセスメントシート（PDF）を選択（手書きOK）</div>
+                    <div class="mock-input" style="margin-top: 6px;">アセスメント補足（テキスト入力）</div>
+                </div>
+                <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
+                <div class="mock-panel">
+                    <div class="mock-panel-title"><i class="fa-solid fa-file-pdf"></i> ④ 過去の個別支援計画書 <span class="badge-optional">任意</span></div>
+                    <div class="mock-file"><i class="fa-solid fa-file-pdf"></i> PDFファイルを選択</div>
+                </div>
+                <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
+                <div style="text-align: center; padding: 12px;">
+                    <div class="mock-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> 5領域に基づく支援計画を作成する</div>
+                </div>
+                <div class="ui-mock-caption">▲ メイン画面の入力フォーム</div>
+            </div>
+
+            <div class="alert alert-tip">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div>
+                    <strong>推奨</strong><br>
+                    アセスメントシートのPDFを添付すると、もっとも質の高い個別支援計画が生成されます。手書きのシートでも自動で内容を読み取ります。
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                    アセスメントPDF未添付時のみ、追加で「<strong>利用者情報</strong>」「<strong>家族の意向・目標設定</strong>」の入力欄が表示されます。
+                </div>
+            </div>
+
+            <h3>3.2 計画作成の実行</h3>
+            <div class="step-guide">
+                <div class="step-guide-title"><i class="fa-solid fa-list-ol"></i> 操作手順</div>
+                <ol>
+                    <li>必要な情報を入力（最低でも1項目は入力必要）</li>
+                    <li>画面下部の「<strong>5領域に基づく支援計画を作成する</strong>」ボタンをクリック</li>
+                    <li>1〜2分ほど待機（PDF読み取り＋計画生成）</li>
+                    <li>結果が画面に表示される</li>
+                </ol>
+            </div>
+
+            <h3>3.3 出力される内容</h3>
+            <table>
+                <thead><tr><th>セクション</th><th>内容</th></tr></thead>
+                <tbody>
+                    <tr><td>基本情報</td><td>氏名、年齢、診断名、受給者証番号</td></tr>
+                    <tr><td>利用児及び家族の生活に対する意向</td><td>保護者からの意向・希望</td></tr>
+                    <tr><td>総合的な支援の方針</td><td>支援全体の方向性</td></tr>
+                    <tr><td>長期目標・短期目標</td><td>1年・6ヶ月の達成目標</td></tr>
+                    <tr><td>個別支援計画（5領域別）</td><td>生活面・運動感覚・認知行動・言語・社会性の表</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 4. 支援プログラムの作成 -->
+        <section id="sec4" class="manual-section">
+            <h2><i class="fa-solid fa-calendar-days"></i> 4. 支援プログラムの作成</h2>
+
+            <p>画面上部の「<strong>支援プログラム</strong>」タブを選択してください。</p>
+
+            <div class="ui-mock">
+                <div class="mock-tabs">
+                    <div class="mock-tab"><i class="fa-solid fa-file-lines"></i> 個別支援計画</div>
+                    <div class="mock-tab active"><i class="fa-solid fa-calendar-days"></i> 支援プログラム</div>
+                </div>
+            </div>
+
+            <h3>4.1 アップロード数による違い</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+                <div style="background: #fffef9; padding: 18px; border-radius: 12px; border: 2px solid var(--accent);">
+                    <div style="font-size: 2rem; text-align: center; color: var(--sub-accent);"><i class="fa-solid fa-user"></i></div>
+                    <div style="font-weight: 900; text-align: center; margin: 8px 0;">1名分</div>
+                    <div style="font-size: 0.9rem; line-height: 1.6;">個別支援プログラム<br>（週間プログラム表、1セッション構成例、声かけ例 等）</div>
+                </div>
+                <div style="background: #fffef9; padding: 18px; border-radius: 12px; border: 2px solid var(--sub-accent);">
+                    <div style="font-size: 2rem; text-align: center; color: var(--accent);"><i class="fa-solid fa-users"></i></div>
+                    <div style="font-weight: 900; text-align: center; margin: 8px 0;">2名以上</div>
+                    <div style="font-size: 0.9rem; line-height: 1.6;">集団プログラム<br>（共通ニーズ分析、集団で実施できる10案、個別配慮 等）</div>
+                </div>
+            </div>
+
+            <h3>4.2 操作手順</h3>
+            <div class="step-guide">
+                <div class="step-guide-title"><i class="fa-solid fa-list-ol"></i> 手順</div>
+                <ol>
+                    <li>個別支援計画書のPDFを1〜複数選択（Ctrlキー押しながらで複数選択）</li>
+                    <li>必要に応じて教室情報・追加指示を入力</li>
+                    <li>「<strong>支援プログラムを作成する</strong>」ボタンをクリック</li>
+                    <li>2〜3分ほど待機</li>
+                    <li>結果が表示される</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- 5. 結果の保存・出力 -->
+        <section id="sec5" class="manual-section">
+            <h2><i class="fa-solid fa-floppy-disk"></i> 5. 結果の保存・出力</h2>
+
+            <p>結果画面の右上に3つのボタンが表示されます。</p>
+
+            <div class="ui-mock">
+                <div style="display: flex; justify-content: flex-end; gap: 8px; padding: 14px;">
+                    <div class="mock-btn-sec"><i class="fa-solid fa-file-pdf"></i> PDF保存</div>
+                    <div class="mock-btn-sec"><i class="fa-regular fa-copy"></i> コピー</div>
+                    <div class="mock-btn-sec" style="border-color: #999; color: #666;"><i class="fa-solid fa-rotate-right"></i> リセット</div>
+                </div>
+                <div class="ui-mock-caption">▲ 結果ヘッダーのボタン</div>
+            </div>
+
+            <h3>5.1 PDF保存</h3>
+            <div class="step-guide">
+                <div class="step-guide-title"><i class="fa-solid fa-file-pdf"></i> PDFに保存する手順</div>
+                <ol>
+                    <li>「PDF保存」ボタンをクリック</li>
+                    <li>新しいウィンドウで印刷ダイアログが開く</li>
+                    <li>「送信先」または「プリンター」で「<strong>PDFに保存</strong>」を選択</li>
+                    <li>用紙設定はA4横向きに自動設定済み</li>
+                    <li>「保存」をクリックしてファイル名・保存先を選択</li>
+                </ol>
+            </div>
+
+            <h3>5.2 コピー（Word/Excel貼り付け）</h3>
+            <div class="step-guide">
+                <div class="step-guide-title"><i class="fa-regular fa-copy"></i> コピーの手順</div>
+                <ol>
+                    <li>「コピー」ボタンをクリック</li>
+                    <li>「表ごとコピーしました」と表示されたら成功</li>
+                    <li>Word・Excel・Googleドキュメント等で貼り付け（Ctrl+V）</li>
+                    <li>表もそのまま貼り付けられる</li>
+                </ol>
+            </div>
+
+            <div class="alert alert-tip">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div>メモ帳など書式に対応しないアプリでは、表はタブ区切り（TSV）形式で貼り付けられます。Excelでも各セルが分かれた状態で貼り付け可能です。</div>
+            </div>
+
+            <h3>5.3 リセット</h3>
+            <p>「リセット」ボタンで入力フォームと結果をすべてクリアできます。次の児童の計画作成を続けて行う際にご利用ください。</p>
+        </section>
+
+        <!-- 6. 個人情報 -->
+        <section id="sec6" class="manual-section">
+            <h2><i class="fa-solid fa-shield-halved"></i> 6. 個人情報の取り扱い</h2>
+
+            <div class="alert alert-warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <strong>重要</strong><br>
+                    本システムは入力情報を <strong>Google Gemini API（米国）</strong> に送信して処理します。個人情報保護法第28条「外国第三者提供」に該当するため、以下のルールを必ず守ってください。
+                </div>
+            </div>
+
+            <h3>6.1 必須ルール</h3>
+            <ol>
+                <li><strong>保護者の同意</strong>: AI処理について、保護者から事前同意を得る</li>
+                <li><strong>仮名運用の推奨</strong>: 児童名・記入者名は可能な限り仮名（イニシャル等）</li>
+                <li><strong>パスワード管理</strong>: 業務関係者以外と共有しない</li>
+                <li><strong>出力の確認</strong>: 必ず児発管が内容を確認・修正してから業務利用</li>
+            </ol>
+
+            <h3>6.2 データの保管期間</h3>
+            <table>
+                <thead><tr><th>保管場所</th><th>保管期間</th></tr></thead>
+                <tbody>
+                    <tr><td>本システムサーバー</td><td>処理後即破棄（DB保存なし）</td></tr>
+                    <tr><td>セッション情報</td><td>最大8時間</td></tr>
+                    <tr><td>Google側（不正検知用）</td><td>最大60日間 → 完全削除</td></tr>
+                    <tr><td>モデル学習</td><td>利用されない（有料tier）</td></tr>
+                </tbody>
+            </table>
+
+            <h3>6.3 推奨される入力方法</h3>
+            <table>
+                <thead><tr><th>項目</th><th>推奨入力</th><th>避けるべき入力</th></tr></thead>
+                <tbody>
+                    <tr><td>児童名</td><td><code>Aさん</code>、<code>T.K.</code>、<code>児童1</code></td><td>フルネーム</td></tr>
+                    <tr><td>記入者名</td><td><code>母</code>、<code>保護者A</code></td><td>フルネーム</td></tr>
+                    <tr><td>受給者証番号</td><td>未入力推奨</td><td>正確な番号</td></tr>
+                    <tr><td>診断名</td><td>そのまま入力可</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <p style="margin-top: 16px;">
+                <a href="/privacy" target="_blank" style="color: var(--dark-sub-accent); font-weight: 700;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> 詳しくはプライバシーポリシーをご確認ください
+                </a>
+            </p>
+        </section>
+
+        <!-- 7. トラブルシューティング -->
+        <section id="sec7" class="manual-section">
+            <h2><i class="fa-solid fa-screwdriver-wrench"></i> 7. トラブルシューティング</h2>
+
+            <h3>7.1 ログインできない</h3>
+            <table>
+                <thead><tr><th>症状</th><th>対処</th></tr></thead>
+                <tbody>
+                    <tr><td>パスワードが正しくありません</td><td>大文字小文字、半角/全角を確認</td></tr>
+                    <tr><td>15分後に再度お試しください</td><td>10回失敗でロック。15分待つか管理者に連絡</td></tr>
+                    <tr><td>画面が表示されない</td><td>キャッシュクリア（Ctrl+Shift+R）</td></tr>
+                </tbody>
+            </table>
+
+            <h3>7.2 PDFアップロード時のエラー</h3>
+            <table>
+                <thead><tr><th>症状</th><th>対処</th></tr></thead>
+                <tbody>
+                    <tr><td>ファイルサイズは15MB以下</td><td>PDFを圧縮 or ページ削減</td></tr>
+                    <tr><td>PDFファイルのみ</td><td>JPG/PNG等は事前にPDF化</td></tr>
+                    <tr><td>読み取りエラー</td><td>パスワード保護を解除</td></tr>
+                </tbody>
+            </table>
+
+            <h3>7.3 計画書の作成でエラー</h3>
+            <table>
+                <thead><tr><th>症状</th><th>対処</th></tr></thead>
+                <tbody>
+                    <tr><td>API Error: 429（クォータ超過）</td><td>1〜2分後に再試行</td></tr>
+                    <tr><td>サーバーエラー</td><td>時間を空けて再試行</td></tr>
+                    <tr><td>処理が長時間終わらない</td><td>3分以上ならブラウザを再読み込み</td></tr>
+                    <tr><td>リクエストが多すぎます</td><td>1分間に30回以上のアクセス。少し待つ</td></tr>
+                </tbody>
+            </table>
+
+            <h3>7.4 出力結果の不具合</h3>
+            <table>
+                <thead><tr><th>症状</th><th>対処</th></tr></thead>
+                <tbody>
+                    <tr><td>氏名が誤認識</td><td>手書きの場合誤読あり。補足欄で正しい情報を補足</td></tr>
+                    <tr><td>内容が不適切・的外れ</td><td>入力情報を増やして再生成、または手動修正</td></tr>
+                    <tr><td>表が崩れて表示</td><td>結果画面は横スクロールで全体確認可能</td></tr>
+                    <tr><td>PDF保存で書式崩れ</td><td>印刷ダイアログで「A4横向き」「拡大縮小: なし」</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 8. お問い合わせ -->
+        <section id="sec8" class="manual-section">
+            <h2><i class="fa-solid fa-envelope"></i> 8. お問い合わせ</h2>
+            <p>本システムに関するご質問・改善要望・トラブルは、ご所属の管理者までご連絡ください。</p>
+            <p style="margin-top: 16px;">
+                <a href="/" style="color: var(--dark-accent); font-weight: 700; margin-right: 16px;">
+                    <i class="fa-solid fa-arrow-left"></i> アプリに戻る
+                </a>
+                <a href="/privacy" target="_blank" style="color: var(--dark-sub-accent); font-weight: 700;">
+                    <i class="fa-solid fa-shield-halved"></i> プライバシーポリシー
+                </a>
+            </p>
+        </section>
+    </div>
+
+    <button class="back-to-top" id="backToTop" title="トップへ"><i class="fa-solid fa-arrow-up"></i></button>
+
+    <footer>
+        <p>
+            &copy; 2026 個別支援計画書 自動作成アシスタント（ウィズ・ユー提供）　｜
+            <a href="/privacy" target="_blank">プライバシーポリシー</a>
+        </p>
+    </footer>
+
+    <script>
+        // 目次クリックで滑らかスクロール
+        document.querySelectorAll('.manual-toc a').forEach(a => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+        // トップへ戻るボタン
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backBtn.classList.toggle('visible', window.scrollY > 400);
+        });
+        backBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

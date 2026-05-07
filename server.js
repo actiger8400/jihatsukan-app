@@ -141,6 +141,11 @@ app.get('/privacy', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
 });
 
+// 利用マニュアル画面（要認証）
+app.get('/manual', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'manual.html'));
+});
+
 // ログイン処理
 app.post('/login', loginLimiter, async (req, res) => {
     const { password } = req.body;
