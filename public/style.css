@@ -92,6 +92,30 @@ body {
     color: var(--text-light);
 }
 
+/* 結果出力上の注意書き */
+.result-disclaimer {
+    background: linear-gradient(135deg, var(--lightest-accent) 0%, var(--lightest-sub-accent) 100%);
+    border-left: 5px solid var(--sub-accent);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+.result-disclaimer i {
+    color: var(--sub-accent);
+    font-size: 1.3rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.result-disclaimer strong {
+    color: var(--dark-sub-accent);
+}
+
 /* プライバシー通知 */
 .privacy-notice {
     background: var(--lightest-sub-accent);

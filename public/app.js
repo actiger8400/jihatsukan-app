@@ -174,6 +174,7 @@ planForm.addEventListener('submit', async (e) => {
         const cleanHtml = DOMPurify.sanitize(rawHtml);
 
         loadingIndicator.classList.add('hidden');
+        document.getElementById('resultDisclaimer').classList.remove('hidden');
         resultContent.innerHTML = cleanHtml;
     } catch (error) {
         console.error('Error generating plan:', error);
@@ -392,6 +393,7 @@ resetBtn.addEventListener('click', () => {
     resultContainer.classList.add('hidden');
     resultContent.innerHTML = '';
     loadingIndicator.classList.add('hidden');
+    document.getElementById('resultDisclaimer').classList.add('hidden');
 
     // 画面トップにスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -456,6 +458,7 @@ programForm.addEventListener('submit', async (e) => {
         const cleanHtml = DOMPurify.sanitize(rawHtml);
 
         programLoading.classList.add('hidden');
+        document.getElementById('programResultDisclaimer').classList.remove('hidden');
         programResultContent.innerHTML = cleanHtml;
         programModeBadge.textContent = data.mode === 'group'
             ? `集団プログラム（${data.count}名）`
