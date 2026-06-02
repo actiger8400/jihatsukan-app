@@ -741,30 +741,49 @@ ${data.childStatus}`);
 厚生労働省「個別支援計画書（参考記載例）」のフォーマットに準拠し、以下の表で出力してください。
 **本人支援（5領域）／家族支援／移行支援／地域支援・地域連携** の各カテゴリで支援内容を整理します。
 
-### 表の作成ルール
-※「項目」列は **本人支援／家族支援／移行支援／地域支援・地域連携** の4種類のいずれかを記載してください。本人支援は5領域分の5行に分けます。
-※「具体的な達成目標」は方向性のある簡潔な表現で記述してください（例：「身辺自立と身だしなみ」「保有する感覚の総合的な活用」）。
-※「支援内容」列には、現場スタッフが実践できる具体的な支援内容を記述し、行末に対応する5領域名を記載してください（例：＜健康や生活＞）。家族支援・移行支援・地域支援には5領域記載は不要です。
-※「担当者・提供機関」には支援を実施する役職・機関を記述してください（例：保育士、児発管、心理担当職員、関係機関名）。
-※「優先順位」は1〜3で記載（1が最優先）。
-※家族支援・移行支援・地域連携の行は、加算要件（家族支援加算、関係機関連携加算等）に関する留意事項も記述してください。
+### 【重要】この表だけは「HTMLタグ」で出力してください（他のセクションは引き続きMarkdown）
+各支援項目について、**データ行の直下に「根拠行」を1行追加**してください。根拠行は colspan=7 で1セルにまとめ、なぜその目標・支援内容になったかを **1〜2文・80字以内** で簡潔に記載します。本文の繰り返しや冗長な説明は禁止です。
 
-| 項目 | 具体的な達成目標 | 支援内容（内容・支援の提供上のポイント・5領域との関連性等） | 達成時期 | 担当者・提供機関 | 留意事項（本人の役割を含む） | 優先順位 |
-|---|---|---|---|---|---|---|
-| 本人支援 | （生活面の簡潔な目標） | （具体的な支援内容）　＜健康や生活＞ | 6か月 | 保育士／児発管 等 | （配慮点） | 1〜3 |
-| 本人支援 | （運動・感覚の目標） | （具体的な支援内容）　＜運動や感覚＞ | 6か月 | 作業療法士／保育士 等 | （配慮点） | 1〜3 |
-| 本人支援 | （認知・行動の目標） | （具体的な支援内容）　＜認知や行動＞ | 6か月 | 心理担当職員 等 | （配慮点） | 1〜3 |
-| 本人支援 | （言語・コミュニケーションの目標） | （具体的な支援内容）　＜言語やコミュニケーション＞ | 6か月 | 心理担当職員／保育士 等 | （配慮点） | 1〜3 |
-| 本人支援 | （人間関係・社会性の目標） | （具体的な支援内容）　＜人間関係や社会性＞ | 6か月 | 保育士／児発管 等 | （配慮点） | 1〜3 |
-| 家族支援 | 日常生活において、保護者と支援方針や具体的な接し方を共有し、家庭で実践できるようになる | （個別面談・グループワーク・連絡帳等を活用した家族との情報共有内容を具体的に記述） | 6か月 | 児発管／心理担当職員／保護者 | 子育てサポート加算・家族支援加算（Ⅰ・Ⅱ）の活用について記載 | 1〜3 |
-| 移行支援 | 学校・保育園・他事業所等の関係機関と連携し、一貫した支援を継続できるようになる | （学校訪問・連絡帳の相互確認・行事時の関わり方共有等の具体策を記述） | 6か月 | 児発管／関係機関担当者／保護者 | 移行先と保護者の意向を踏まえ三者で連携することに留意 | 1〜3 |
-| 地域支援・地域連携 | 関係機関で役割分担を行い、それぞれが得た情報を共有し、日常生活や支援に活用できるようにする | （連携会議の実施頻度・情報収集の方法・関係機関への助言内容を具体的に記述） | 6か月 | 児発管／関係機関（学校・医療機関・相談支援事業所等） | 関係機関連携加算（Ⅰ・Ⅱ）の活用について記載 | 1〜3 |
+### 各列のルール
+※「項目」列は **本人支援／家族支援／移行支援／地域支援・地域連携** のいずれか。本人支援は5領域分の5行に分けます。
+※「具体的な達成目標」は方向性のある簡潔な表現（例：「身辺自立と身だしなみ」「保有する感覚の総合的な活用」）。
+※「支援内容」列は、現場で実践する**個別の具体策ごとに <div> の枠で1つずつ独立して囲んで**ください（1セルに1〜3個推奨）。**div の中身は60字以内・1文**で簡潔に。
+※各 div の内部は flexbox 構造とし、**左に「具体策テキスト」、右に「5領域名のバッジ」を横並び表示**します（テンプレート参照）。家族支援・移行支援・地域支援は5領域バッジ不要（div の中身は具体策テキストのみ）。
+※「担当者・提供機関」には役職・機関名（例：保育士、児発管、心理担当職員、関係機関名）。
+※「優先順位」は1〜3（1が最優先）。
+※家族支援・移行支援・地域連携の行は、加算要件（家族支援加算、関係機関連携加算等）の留意事項も記述。
+
+### HTMLテンプレート（このフォーマットで出力。下記の8項目すべて、データ行＋根拠行のペアで必ず出力）
+
+<table>
+<thead>
+<tr><th>項目</th><th>具体的な達成目標</th><th>支援内容（内容・支援の提供上のポイント・5領域との関連性等）</th><th>達成時期</th><th>担当者・提供機関</th><th>留意事項（本人の役割を含む）</th><th>優先順位</th></tr>
+</thead>
+<tbody>
+<tr><td>本人支援</td><td>（生活面の簡潔な目標）</td><td><div style="display:flex;align-items:center;gap:8px;border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;margin-bottom:4px;border-radius:4px;"><span style="flex:1;">（具体策1・60字以内）</span><span style="flex-shrink:0;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;font-size:0.82em;padding:2px 8px;border-radius:10px;white-space:nowrap;">健康や生活</span></div><div style="display:flex;align-items:center;gap:8px;border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;margin-bottom:4px;border-radius:4px;"><span style="flex:1;">（具体策2・60字以内）</span><span style="flex-shrink:0;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;font-size:0.82em;padding:2px 8px;border-radius:10px;white-space:nowrap;">健康や生活</span></div></td><td>6か月</td><td>保育士／児発管 等</td><td>（配慮点）</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（アセスメント／保護者意向のどの記述に基づくか、80字以内・1〜2文）</td></tr>
+<tr><td>本人支援</td><td>（運動・感覚の目標）</td><td><div style="display:flex;align-items:center;gap:8px;border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;margin-bottom:4px;border-radius:4px;"><span style="flex:1;">（具体策）</span><span style="flex-shrink:0;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;font-size:0.82em;padding:2px 8px;border-radius:10px;white-space:nowrap;">運動や感覚</span></div></td><td>6か月</td><td>作業療法士／保育士 等</td><td>（配慮点）</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（80字以内）</td></tr>
+<tr><td>本人支援</td><td>（認知・行動の目標）</td><td><div style="display:flex;align-items:center;gap:8px;border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;margin-bottom:4px;border-radius:4px;"><span style="flex:1;">（具体策）</span><span style="flex-shrink:0;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;font-size:0.82em;padding:2px 8px;border-radius:10px;white-space:nowrap;">認知や行動</span></div></td><td>6か月</td><td>心理担当職員 等</td><td>（配慮点）</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（80字以内）</td></tr>
+<tr><td>本人支援</td><td>（言語・コミュニケーションの目標）</td><td><div style="display:flex;align-items:center;gap:8px;border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;margin-bottom:4px;border-radius:4px;"><span style="flex:1;">（具体策）</span><span style="flex-shrink:0;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;font-size:0.82em;padding:2px 8px;border-radius:10px;white-space:nowrap;">言語やコミュニケーション</span></div></td><td>6か月</td><td>心理担当職員／保育士 等</td><td>（配慮点）</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（80字以内）</td></tr>
+<tr><td>本人支援</td><td>（人間関係・社会性の目標）</td><td><div style="display:flex;align-items:center;gap:8px;border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;margin-bottom:4px;border-radius:4px;"><span style="flex:1;">（具体策）</span><span style="flex-shrink:0;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;font-size:0.82em;padding:2px 8px;border-radius:10px;white-space:nowrap;">人間関係や社会性</span></div></td><td>6か月</td><td>保育士／児発管 等</td><td>（配慮点）</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（80字以内）</td></tr>
+<tr><td>家族支援</td><td>日常生活において、保護者と支援方針や具体的な接し方を共有し、家庭で実践できるようになる</td><td><div style="border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;border-radius:4px;">（個別面談・グループワーク・連絡帳等の具体策）</div></td><td>6か月</td><td>児発管／心理担当職員／保護者</td><td>子育てサポート加算・家族支援加算（Ⅰ・Ⅱ）の活用について記載</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（80字以内）</td></tr>
+<tr><td>移行支援</td><td>学校・保育園・他事業所等の関係機関と連携し、一貫した支援を継続できるようになる</td><td><div style="border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;border-radius:4px;">（学校訪問・連絡帳の相互確認等の具体策）</div></td><td>6か月</td><td>児発管／関係機関担当者／保護者</td><td>移行先と保護者の意向を踏まえ三者で連携することに留意</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（80字以内）</td></tr>
+<tr><td>地域支援・地域連携</td><td>関係機関で役割分担を行い、それぞれが得た情報を共有し、日常生活や支援に活用できるようにする</td><td><div style="border:1px solid #cfd8dc;background:#f5f7fa;padding:6px 8px;border-radius:4px;">（連携会議・情報共有等の具体策）</div></td><td>6か月</td><td>児発管／関係機関（学校・医療機関・相談支援事業所等）</td><td>関係機関連携加算（Ⅰ・Ⅱ）の活用について記載</td><td>1〜3</td></tr>
+<tr style="background-color:#fff8e1;"><td colspan="7" style="padding-left:1.5em;font-size:0.92em;color:#5d4037;">↳ <strong>根拠</strong>：（80字以内）</td></tr>
+</tbody>
+</table>
 
 ## 特記事項
 以下の固定内容をそのまま記載してください（変更不可）。
 
-平日学休日の提供時間： 10時00分 ～ 15時00分  5時間00分
-平日学休日の延長支援時間： 【支援後】15時00分 ～ 16時00分  1時間00分
+平日学休日の提供時間： 〇〇時〇〇分 ～ 〇〇時〇〇分  〇時間〇〇分
+平日学休日の延長支援時間： 【支援後】〇〇時〇〇分 ～ 〇〇時〇〇分  〇時間〇〇分
 (1)レスパイトケアを目的とし、福祉施設を活用した生活リズムの安定化のため。
 (2)保護者様の就労・通院・その他活動支援のため。
 
@@ -773,6 +792,21 @@ ${data.childStatus}`);
 
 (1)短縮授業・休校日・学級閉鎖等、学校（園）の状況により利用時間は前後することがあるため、学校（園）・保護者様と連携を図り、必要に応じて延長加算を算定する。
 (2)保護者様の就労・通院・その他活動のため、上記記載曜日以外に利用する場合もあり。
+
+## 意図・根拠まとめ
+本計画の主要項目について、なぜその内容としたかを簡潔に整理してください。
+**各項目1〜2行・全体で15行以内**に収め、冗長な説明や本文の繰り返しは禁止です。
+
+- **総合方針の意図**: （全体の支援方向性をなぜそう設定したか、1〜2行）
+- **長期目標の根拠**: （アセスメント／保護者意向のどの記述に基づくか、1〜2行）
+- **短期目標の根拠**: （6か月で優先する理由、1〜2行）
+- **5領域の重点配分**:
+  - 健康や生活: （選定根拠、1行）
+  - 運動や感覚: （選定根拠、1行）
+  - 認知や行動: （選定根拠、1行）
+  - 言語やコミュニケーション: （選定根拠、1行）
+  - 人間関係や社会性: （選定根拠、1行）
+- **家族・移行・地域支援の意図**: （3カテゴリ合わせて2行以内）
 
 それでは、プロの児発管の視点から出力をお願いします。`);
 
