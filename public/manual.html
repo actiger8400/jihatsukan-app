@@ -455,19 +455,14 @@
                     <div class="mock-input">教室の特徴・方針</div>
                 </div>
                 <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
-                <div class="mock-panel">
-                    <div class="mock-panel-title"><i class="fa-solid fa-clipboard-list"></i> ② 日々の様子 <span class="badge-optional">任意</span></div>
-                    <div class="mock-input">日々の様子・気になる特性・興味・ニーズ</div>
-                </div>
-                <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
                 <div class="mock-panel primary">
-                    <div class="mock-panel-title"><i class="fa-solid fa-file-lines"></i> ③ アセスメントシート <span class="badge-recommended">推奨</span></div>
+                    <div class="mock-panel-title"><i class="fa-solid fa-file-lines"></i> ② アセスメントシート <span class="badge-recommended">推奨</span></div>
                     <div class="mock-file"><i class="fa-solid fa-file-pdf"></i> アセスメントシート（PDF）を選択（手書きOK）</div>
                     <div class="mock-input" style="margin-top: 6px;">アセスメント補足（テキスト入力）</div>
                 </div>
                 <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
                 <div class="mock-panel">
-                    <div class="mock-panel-title"><i class="fa-solid fa-file-pdf"></i> ④ 過去の個別支援計画書 <span class="badge-optional">任意</span></div>
+                    <div class="mock-panel-title"><i class="fa-solid fa-file-pdf"></i> ③ 過去の個別支援計画書 <span class="badge-optional">任意</span></div>
                     <div class="mock-file"><i class="fa-solid fa-file-pdf"></i> PDFファイルを選択</div>
                 </div>
                 <div class="arrow-down"><i class="fa-solid fa-chevron-down"></i></div>
@@ -481,14 +476,14 @@
                 <i class="fa-solid fa-lightbulb"></i>
                 <div>
                     <strong>推奨</strong><br>
-                    アセスメントシートのPDFを添付すると、もっとも質の高い個別支援計画が生成されます。手書きのシートでも自動で内容を読み取ります。
+                    児童に関する情報は <strong>アセスメントシートのPDF</strong> に集約してアップロードしてください。氏名・年齢・診断名・家族の意向・目標などはすべてアセスメントシートから自動で読み取ります。手書きのシートも自動読み取りに対応しています。
                 </div>
             </div>
 
             <div class="alert alert-info">
                 <i class="fa-solid fa-circle-info"></i>
                 <div>
-                    アセスメントPDF未添付時のみ、追加で「<strong>利用者情報</strong>」「<strong>家族の意向・目標設定</strong>」の入力欄が表示されます。
+                    アセスメント補足欄では、PDFに含まれない情報（最近の様子、検査結果、他機関からの情報など）を追加でテキスト入力できます。
                 </div>
             </div>
 
@@ -507,13 +502,39 @@
             <table>
                 <thead><tr><th>セクション</th><th>内容</th></tr></thead>
                 <tbody>
-                    <tr><td>基本情報</td><td>氏名、年齢、診断名、受給者証番号</td></tr>
+                    <tr><td>基本情報</td><td>氏名、年齢、診断名、受給者証番号など</td></tr>
                     <tr><td>利用児及び家族の生活に対する意向</td><td>保護者からの意向・希望</td></tr>
-                    <tr><td>総合的な支援の方針</td><td>支援全体の方向性</td></tr>
+                    <tr><td>総合的な支援の方針</td><td>支援全体の方向性（箇条書き）</td></tr>
                     <tr><td>長期目標・短期目標</td><td>1年・6ヶ月の達成目標</td></tr>
-                    <tr><td>個別支援計画（5領域別）</td><td>生活面・運動感覚・認知行動・言語・社会性の表</td></tr>
+                    <tr><td>備考</td><td>加算関連の定型文</td></tr>
+                    <tr><td>支援目標及び具体的な支援内容（5領域＋家族・移行・地域連携）</td><td>各項目の達成目標・支援内容・担当者・優先度を表で整理。<strong>各行の直下に「根拠」枠</strong>を併記し、なぜその支援内容になったかを明示</td></tr>
+                    <tr><td>特記事項</td><td>提供時間・延長支援時間は <strong>伏字（〇〇時〇〇分）</strong> で出力。施設で手書き記入</td></tr>
+                    <tr><td>延長を必要とする理由及び時間</td><td>定型文</td></tr>
+                    <tr><td>意図・根拠まとめ</td><td>長期目標／短期目標／5領域の重点配分など、計画全体の意図を簡潔に整理</td></tr>
                 </tbody>
             </table>
+
+            <h3>3.4 出力結果の見方</h3>
+
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                    支援目標及び具体的な支援内容の表では、以下の3つの工夫がされています：
+                    <ol style="margin-top: 8px;">
+                        <li><strong>具体策の枠分け</strong>: 1つのセル内で複数の具体策がある場合、それぞれが独立した枠（カード）で表示されます</li>
+                        <li><strong>5領域バッジ</strong>: 各具体策の右側に「健康や生活」「運動や感覚」など、対応する5領域名が小さなバッジで表示されます</li>
+                        <li><strong>根拠行</strong>: 各データ行のすぐ下に、薄い黄色背景の「根拠」枠があり、その目標・支援内容を選んだ理由が記載されます</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="alert alert-tip">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div>
+                    <strong>編集のヒント</strong><br>
+                    特記事項の時間部分（〇〇時〇〇分）は意図的に伏字になっています。各施設の実際の提供時間に合わせて、Word/Excel に貼り付けた後で記入してください。
+                </div>
+            </div>
         </section>
 
         <!-- 4. 支援プログラムの作成 -->
