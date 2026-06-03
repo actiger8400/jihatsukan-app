@@ -54,37 +54,8 @@ pdfFileInput.addEventListener('change', async () => {
             return;
         }
 
-        // 抽出結果をフォームに自動入力（空でない場合のみ）
-        let filledCount = 0;
-        const fields = [
-            { id: 'childName', value: data.childName },
-            { id: 'childAge', value: data.childAge },
-            { id: 'childProfile', value: data.childProfile },
-            { id: 'familyWishes', value: data.familyWishes },
-            { id: 'longTermGoal', value: data.longTermGoal },
-            { id: 'shortTermGoal', value: data.shortTermGoal }
-        ];
-
-        fields.forEach(field => {
-            if (field.value) {
-                const el = document.getElementById(field.id);
-                // 既に入力がある場合は上書きしない
-                if (!el.value.trim()) {
-                    el.value = field.value;
-                    el.classList.add('auto-filled');
-                    setTimeout(() => el.classList.remove('auto-filled'), 3000);
-                    filledCount++;
-                }
-            }
-        });
-
-        if (filledCount > 0) {
-            pdfStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${file.name}（${sizeMB}MB）- ${filledCount}件の項目を自動入力しました`;
-            pdfStatus.style.color = '#4CAF50';
-        } else {
-            pdfStatus.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${file.name}（${sizeMB}MB）- 読み取り完了（自動入力できる項目はありませんでした）`;
-            pdfStatus.style.color = '#FF9800';
-        }
+        pdfStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${file.name}（${sizeMB}MB）を選択中（生成時に内容を参照します）`;
+        pdfStatus.style.color = '#4CAF50';
     } catch (err) {
         console.error('PDF extract error:', err);
         pdfStatus.textContent = `${file.name}（${sizeMB}MB） - 読み取りに失敗しました`;
@@ -92,12 +63,7 @@ pdfFileInput.addEventListener('change', async () => {
     }
 });
 
-// アセスメントシートPDF: フィードバック + 補助セクション切り替え
-const fallbackSections = document.getElementById('fallbackSections');
-function updateFallbackVisibility() {
-    const hasAssessment = !!assessmentPdfInput.files[0];
-    fallbackSections.classList.toggle('hidden', hasAssessment);
-}
+// アセスメントシートPDF: フィードバック
 assessmentPdfInput.addEventListener('change', () => {
     const file = assessmentPdfInput.files[0];
     if (file) {
@@ -107,35 +73,24 @@ assessmentPdfInput.addEventListener('change', () => {
     } else {
         assessmentPdfStatus.textContent = '';
     }
-    updateFallbackVisibility();
 });
-// 初期表示
-updateFallbackVisibility();
 
 // Generate Plan Logic
 planForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const status = document.getElementById('childStatus').value.trim();
     const assessment = document.getElementById('assessment').value.trim();
     const hasAssessmentPdf = !!assessmentPdfInput.files[0];
     const hasPastPdf = !!pdfFileInput.files[0];
 
-    if (!hasAssessmentPdf && !assessment && !status && !hasPastPdf) {
-        alert('アセスメントシート、アセスメント補足、日々の様子、過去の計画書のいずれかを入力してください。');
+    if (!hasAssessmentPdf && !assessment && !hasPastPdf) {
+        alert('アセスメントシート、アセスメント補足、過去の計画書のいずれかを入力してください。');
         return;
     }
 
     // FormDataでファイルとテキストを送信
     const formData = new FormData();
-    formData.append('childName', document.getElementById('childName').value.trim());
-    formData.append('childAge', document.getElementById('childAge').value.trim());
-    formData.append('childProfile', document.getElementById('childProfile').value.trim());
-    formData.append('childStatus', status);
     formData.append('assessment', assessment);
-    formData.append('familyWishes', document.getElementById('familyWishes').value.trim());
-    formData.append('longTermGoal', document.getElementById('longTermGoal').value.trim());
-    formData.append('shortTermGoal', document.getElementById('shortTermGoal').value.trim());
     formData.append('classroomName', document.getElementById('classroomName').value.trim());
     formData.append('classroomPolicy', document.getElementById('classroomPolicy').value.trim());
 
@@ -251,8 +206,8 @@ function htmlToPlainTextWithTables(rootEl) {
 pdfBtn.addEventListener('click', () => {
     // 結果コンテンツだけを印刷する新しいウィンドウを開く
     const printWindow = window.open('', '_blank');
-    const childName = document.getElementById('childName').value.trim() || '利用者';
     const today = new Date().toISOString().slice(0, 10);
+    const childName = '利用者';
 
     printWindow.document.write(`<!DOCTYPE html>
 <html lang="ja">

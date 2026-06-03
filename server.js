@@ -8,8 +8,34 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const { GoogleGenAI } = require('@google/genai');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Vertex AI (Google Gen AI SDK) クライアント初期化
+// ローカル: GOOGLE_APPLICATION_CREDENTIALS=ファイルパス で自動認証
+// 本番(Render): GOOGLE_APPLICATION_CREDENTIALS_JSON=JSON文字列 で認証
+function buildVertexAI() {
+    const project = process.env.GOOGLE_CLOUD_PROJECT;
+    const location = process.env.GOOGLE_CLOUD_LOCATION || 'asia-northeast1';
+    if (!project) {
+        console.warn('GOOGLE_CLOUD_PROJECT 未設定 — Vertex AI 呼び出しは失敗します');
+        return null;
+    }
+    const opts = { vertexai: true, project, location };
+    const credsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+    if (credsJson) {
+        try {
+            opts.googleAuthOptions = { credentials: JSON.parse(credsJson) };
+        } catch (e) {
+            console.error('GOOGLE_APPLICATION_CREDENTIALS_JSON のパース失敗:', e.message);
+            return null;
+        }
+    }
+    return new GoogleGenAI(opts);
+}
+const vertexAI = buildVertexAI();
+const MODEL_NAME = process.env.VERTEX_MODEL || 'gemini-2.5-flash';
 
 // プロキシ（Render）越しなのでこれが必要
 app.set('trust proxy', 1);
@@ -302,9 +328,8 @@ function extractFieldsFromPdf(text) {
 
 // 支援計画生成エンドポイント
 app.post('/api/generate', apiLimiter, uploadFields, async (req, res) => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        return res.status(500).json({ error: 'サーバーにAPIキーが設定されていません。' });
+    if (!vertexAI) {
+        return res.status(500).json({ error: 'サーバーにVertex AI認証情報が設定されていません。' });
     }
 
     const {
@@ -337,13 +362,10 @@ app.post('/api/generate', apiLimiter, uploadFields, async (req, res) => {
         }
     }
 
-    // 入力チェック: アセスメント/日々の様子/過去計画書のいずれかが必要
-    if (!assessmentPdfFile && !assessmentPdfText && !assessment && !childStatus && !pastPdfFile && !pastPlanText) {
-        return res.status(400).json({ error: 'アセスメントシート、アセスメント補足、日々の様子、過去の計画書のいずれかを入力してください。' });
+    // 入力チェック: アセスメント/過去計画書のいずれかが必要
+    if (!assessmentPdfFile && !assessmentPdfText && !assessment && !pastPdfFile && !pastPlanText) {
+        return res.status(400).json({ error: 'アセスメントシート、アセスメント補足、過去の計画書のいずれかを入力してください。' });
     }
-
-    const model = 'gemini-2.5-flash';
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const prompt = buildPrompt({
         childName, childAge, childProfile, childStatus,
@@ -353,60 +375,40 @@ app.post('/api/generate', apiLimiter, uploadFields, async (req, res) => {
         hasPastPdf: !!pastPdfFile
     });
 
-    // Geminiへ送るパート構築: プロンプト + PDFファイル（inline_data）
+    // Vertex AIへ送るパート構築: プロンプト + PDFファイル（inlineData）
     const parts = [{ text: prompt }];
 
-    // アセスメントPDFを画像として同梱（手書き対応）
     if (assessmentPdfFile) {
         parts.push({
-            inline_data: {
-                mime_type: 'application/pdf',
+            inlineData: {
+                mimeType: 'application/pdf',
                 data: assessmentPdfFile.buffer.toString('base64')
             }
         });
     }
-    // 過去計画書PDFも同梱
     if (pastPdfFile) {
         parts.push({
-            inline_data: {
-                mime_type: 'application/pdf',
+            inlineData: {
+                mimeType: 'application/pdf',
                 data: pastPdfFile.buffer.toString('base64')
             }
         });
     }
 
-    const requestBody = {
-        contents: [{ parts }],
-        generationConfig: {
-            temperature: 0.4
-        }
-    };
-
     try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody)
+        const result = await vertexAI.models.generateContent({
+            model: MODEL_NAME,
+            contents: [{ role: 'user', parts }],
+            config: { temperature: 0.4 }
         });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error('Gemini API Error:', data);
-            return res.status(response.status).json({
-                error: data.error?.message || `Gemini API Error: ${response.status}`
-            });
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) {
+            return res.status(500).json({ error: '予期しないレスポンス形式です。' });
         }
-
-        if (data.candidates && data.candidates[0].content) {
-            const text = data.candidates[0].content.parts[0].text;
-            res.json({ result: text });
-        } else {
-            res.status(500).json({ error: '予期しないレスポンス形式です。' });
-        }
+        res.json({ result: text });
     } catch (error) {
-        console.error('Server error:', error);
-        res.status(500).json({ error: 'サーバーエラーが発生しました。' });
+        console.error('Vertex AI Error:', error);
+        res.status(500).json({ error: error.message || 'サーバーエラーが発生しました。' });
     }
 });
 
@@ -414,9 +416,8 @@ app.post('/api/generate', apiLimiter, uploadFields, async (req, res) => {
 // プログラム生成エンドポイント（複数計画書PDF→支援プログラム）
 // ==========================================
 app.post('/api/generate-program', apiLimiter, programUpload, async (req, res) => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        return res.status(500).json({ error: 'サーバーにAPIキーが設定されていません。' });
+    if (!vertexAI) {
+        return res.status(500).json({ error: 'サーバーにVertex AI認証情報が設定されていません。' });
     }
 
     const files = req.files || [];
@@ -430,8 +431,6 @@ app.post('/api/generate-program', apiLimiter, programUpload, async (req, res) =>
     const additionalNote = (req.body.additionalNote || '').trim();
 
     const isGroup = files.length >= 2;
-    const model = 'gemini-2.5-flash';
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const prompt = buildProgramPrompt({
         fileCount: files.length,
@@ -442,45 +441,35 @@ app.post('/api/generate-program', apiLimiter, programUpload, async (req, res) =>
         additionalNote
     });
 
-    // parts: プロンプト + 各PDFをinline_dataで同梱
+    // parts: プロンプト + 各PDFをinlineDataで同梱
     const parts = [{ text: prompt }];
     for (const f of files) {
         parts.push({
-            inline_data: {
-                mime_type: 'application/pdf',
+            inlineData: {
+                mimeType: 'application/pdf',
                 data: f.buffer.toString('base64')
             }
         });
     }
 
     try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts }],
-                generationConfig: { temperature: 0.4 }
-            })
+        const result = await vertexAI.models.generateContent({
+            model: MODEL_NAME,
+            contents: [{ role: 'user', parts }],
+            config: { temperature: 0.4 }
         });
-        const data = await response.json();
-        if (!response.ok) {
-            console.error('Gemini API Error (program):', data);
-            return res.status(response.status).json({
-                error: data.error?.message || `Gemini API Error: ${response.status}`
-            });
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) {
+            return res.status(500).json({ error: '予期しないレスポンス形式です。' });
         }
-        if (data.candidates && data.candidates[0].content) {
-            res.json({
-                result: data.candidates[0].content.parts[0].text,
-                mode: isGroup ? 'group' : 'individual',
-                count: files.length
-            });
-        } else {
-            res.status(500).json({ error: '予期しないレスポンス形式です。' });
-        }
+        res.json({
+            result: text,
+            mode: isGroup ? 'group' : 'individual',
+            count: files.length
+        });
     } catch (error) {
-        console.error('Program generation error:', error);
-        res.status(500).json({ error: 'サーバーエラーが発生しました。' });
+        console.error('Vertex AI Error (program):', error);
+        res.status(500).json({ error: error.message || 'サーバーエラーが発生しました。' });
     }
 });
 
