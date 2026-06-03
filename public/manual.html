@@ -611,7 +611,7 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <div>
                     <strong>重要</strong><br>
-                    本システムは入力情報を <strong>Google Gemini API（米国）</strong> に送信して処理します。個人情報保護法第28条「外国第三者提供」に該当するため、以下のルールを必ず守ってください。
+                    本システムは入力情報を <strong>Google Cloud社の Vertex AI（東京リージョン）</strong> に送信して処理します。データ処理は日本国内で行われますが、運営事業者（Google LLC）が米国法人のため、個人情報保護法第28条「外国第三者提供」に該当します。以下のルールを必ず守ってください。
                 </div>
             </div>
 
@@ -629,8 +629,8 @@
                 <tbody>
                     <tr><td>本システムサーバー</td><td>処理後即破棄（DB保存なし）</td></tr>
                     <tr><td>セッション情報</td><td>最大8時間</td></tr>
-                    <tr><td>Google側（不正検知用）</td><td>最大60日間 → 完全削除</td></tr>
-                    <tr><td>モデル学習</td><td>利用されない（有料tier）</td></tr>
+                    <tr><td>Vertex AI（東京リージョン・不正検知用）</td><td>最大60日間 → 完全削除</td></tr>
+                    <tr><td>モデル学習</td><td>一切利用されない（Vertex AI規約上明示）</td></tr>
                 </tbody>
             </table>
 
