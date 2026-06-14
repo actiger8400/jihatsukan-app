@@ -144,7 +144,7 @@ function requireAuth(req, res, next) {
 }
 
 // 公開リソース（ログイン画面・プライバシーポリシー・ロゴ画像・CSSなど）
-const PUBLIC_PATHS = ['/login', '/logout', '/privacy', '/style.css', '/withyou_logo背景無.png', '/favicon.ico'];
+const PUBLIC_PATHS = ['/login', '/logout', '/privacy', '/style.css', '/withyou_logo.png', '/favicon.ico'];
 
 app.use((req, res, next) => {
     if (PUBLIC_PATHS.includes(req.path) || req.path.startsWith('/login')) {
